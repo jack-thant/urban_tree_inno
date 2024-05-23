@@ -1,4 +1,5 @@
 import Image from "next/image";
+import StatsListItem from "./statsListItem";
 
 export default function SideNav() {
   return (
@@ -38,7 +39,7 @@ export default function SideNav() {
                   height={20}
                   alt="Icon of Heat Spot Data"
                 />
-                <p className='font-semibold text-sm ml-3'>Heat Spot Data</p>
+                <p className="font-semibold text-sm ml-3">Heat Spot Data</p>
               </div>
 
               <label htmlFor="one" className="mt-1">
@@ -56,7 +57,9 @@ export default function SideNav() {
                   height={19}
                   alt="Icon of Population Density Data"
                 />
-                <p className='font-semibold text-sm  ml-3'>Population Density Data</p>
+                <p className="font-semibold text-sm  ml-3">
+                  Population Density Data
+                </p>
               </div>
 
               <label htmlFor="one" className="mt-1">
@@ -74,7 +77,9 @@ export default function SideNav() {
                   height={20}
                   alt="Icon of High Value Estate Data"
                 />
-                <p className='font-semibold text-sm ml-3'>High Value Estate Data</p>
+                <p className="font-semibold text-sm ml-3">
+                  High Value Estate Data
+                </p>
               </div>
 
               <label htmlFor="one" className="mt-1">
@@ -85,9 +90,20 @@ export default function SideNav() {
         </div>
       </div>
       {/* Impact Assessment */}
-      <div className="bg-white rounded-lg text-black min-w-[300px]">
-        <div className="px-6 py-4">	
-        <div className="font-bold text-lg mb-4">Impact Assessment</div>
+      <div className="bg-white rounded-lg text-black min-w-[300px] overflow-auto">
+        <div className="px-6 py-4">
+          <div className="font-bold text-lg mb-4">Impact Assessment</div>
+          <div className="flex flex-col">
+            <div className="flex flex-col justify-between gap-y-5 mt-2">
+              <StatsListItem image_src="tree-fill" title="Planted Trees" statistics={0} arrow_up_down="arrow_up_green" growth_percentage={1}/>
+              <StatsListItem image_src="tree-notfill" title="Total Number of Trees" statistics={100000} arrow_up_down="arrow_up_green" growth_percentage={1}/>
+              <StatsListItem image_src="tree-notfill" title="Annual Number of Trees" statistics={5000} arrow_up_down="arrow_up_green" growth_percentage={5}/>
+              <StatsListItem image_src="cloud" title="Annual Carbon Sequestration (kg CO2)" statistics={5000} arrow_up_down="arrow_down_green" growth_percentage={1}/>
+              <StatsListItem image_src="air" title="Air Pollutants Removed (kg/year)" statistics={200} arrow_up_down="arrow_down_green" growth_percentage={1}/>
+              <StatsListItem image_src="storm-water" title="Stormwater Runoff Reduction (m3/year)" statistics={1000} arrow_up_down="arrow_down_green" growth_percentage={5}/>
+              <StatsListItem image_src="temperature" title="Average Temperature Reduction (C)" statistics={1.5} arrow_up_down="arrow_down_green" growth_percentage={1}/>
+            </div>
+          </div>
         </div>
       </div>
     </div>
