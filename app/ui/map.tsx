@@ -6,8 +6,33 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { lightingEffect, material, INITIAL_VIEW_STATE, colorRange } from "@/app/lib/mapconfig";
 import Image from 'next/image';
 import SideNav from './sidenav';
+import { TemperatureRecord } from '../lib/definitions';
+import { useEffect, useState } from 'react';
+import { HeatmapLayer } from '@deck.gl/aggregation-layers';
+import { ScatterplotLayer } from 'deck.gl';
+
 
 export default function LocationAggregatorMap() {
+
+    const [tempDataFromSideNav, setTempDataFromSideNav] = useState<TemperatureRecord[]>([]);
+
+    const handleTempDataFromSideNav = (data: TemperatureRecord[]) => {
+        setTempDataFromSideNav(data);
+    }
+    // Filter out records with null meanTemperature values
+    const filteredData = tempDataFromSideNav.filter(e => e['Mean Temperature'] !== null)
+
+    const layers = [
+        new HeatmapLayer<TemperatureRecord>({
+            id: 'temperature-change',
+            data: tempDataFromSideNav,
+            aggregation: 'SUM',
+            radiusPixels: 40,
+            getPosition: (d: TemperatureRecord) => [d.lon, d.lat],
+            getWeight: (d: TemperatureRecord) => d['Mean Temperature']
+        })
+    ]
+
     return (
         <>
             <div>
@@ -15,6 +40,7 @@ export default function LocationAggregatorMap() {
                     effects={[lightingEffect]}
                     initialViewState={INITIAL_VIEW_STATE}
                     controller={true}
+                    layers={layers}
                 >
                     <Map
                         mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
@@ -22,23 +48,23 @@ export default function LocationAggregatorMap() {
                         mapStyle="mapbox://styles/mapbox/outdoors-v12"
                     >
                         <NavigationControl
-                            position='bottom-left'/>
+                            position='bottom-left' />
                     </Map>
 
-                    
+
 
                     <div className="absolute text-white min-h-[100px] top-10 left-10 rounded-lg p-4 text-sm bg-white">
                         <div className="flex flex-row">
-                        <Image
-                            src="./mingcute_tree-2-fill.svg"
-                            width={27}
-                            height={27}
-                            alt="Urban Tree Inno Logo"
+                            <Image
+                                src="./mingcute_tree-2-fill.svg"
+                                width={27}
+                                height={27}
+                                alt="Urban Tree Inno Logo"
                             />
-                        <h1 className="font-bold md:text-xl lg:text-2xl text-teal-500 p-3 text-wrap">Urban Tree Inno</h1>
-                        
+                            <h1 className="font-bold md:text-xl lg:text-2xl text-teal-500 p-3 text-wrap">Urban Tree Inno</h1>
+
                         </div>
-                        
+
                         <div className="flex flex-row gap-3">
                             <button type="button" className="inline-flex justify-center gap-x-1.5 rounded-md bg-teal-500 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-teal-500 hover:bg-white hover:text-black" id="menu-button" aria-expanded="true" aria-haspopup="true">
                                 Island Urban View
@@ -47,7 +73,7 @@ export default function LocationAggregatorMap() {
                                 </svg>
                             </button>
                             <button type="button" className="inline-flex justify-center rounded-md bg-white px-3 py-1 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-50" id="menu-button" aria-expanded="true" aria-haspopup="true">
-                                
+
                                 <label htmlFor="one" className="mt-1">
                                     <input id="one" type="checkbox" />
                                 </label>
@@ -55,7 +81,7 @@ export default function LocationAggregatorMap() {
                             </button>
                         </div>
                     </div>
-                    <SideNav></SideNav>
+                    <SideNav sendDataToParent={handleTempDataFromSideNav}></SideNav>
                 </DeckGL>
             </div>
         </>

@@ -9,23 +9,53 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { years, months } from "@/constants/data";
-import { useState } from "react";
+import { years, months } from "@/constants/yearMonth";
+import { useEffect, useRef, useState } from "react";
+import { TemperatureRecord } from "../lib/definitions";
 
-export default function SideNav() {
+interface SideNavProps {
+  sendDataToParent: (tempData: TemperatureRecord[]) => void;
+}
+
+export default function SideNav({ sendDataToParent }: SideNavProps) {
 
   const [year, setYear] = useState("");
   const [month, setMonth] = useState("");
+  const [tempData, setTempData] = useState<TemperatureRecord[]>([]);
 
   const handleYearChange = (value: string) => {
     setYear(value);
   }
 
-  const handleMonthChange = ( value: string ) => {
+  const handleMonthChange = (value: string) => {
     setMonth(value);
   }
   // for testing
   // console.log(`Year: ${year}, Month: ${month}`)
+  useEffect(() => {
+    const fetchTemperatureData = async (yearMonth: string) => {
+      try {
+        const res = await fetch(`http://127.0.0.1:8000/mean_temperature/${yearMonth}`)
+        const data = await res.json();
+        setTempData(data);
+      } catch (error) {
+        console.log('Error fetching data: ', error);
+      }
+    };
+    if (year && month) {
+      const yearMonth: string = year + month;
+      fetchTemperatureData(yearMonth);
+    }
+  }, [year, month])
+
+  useEffect(() => {
+    if (tempData) {
+      sendDataToParent(tempData);
+    }
+
+  }, [tempData, sendDataToParent])
+
+
 
   return (
     <div className="flex flex-col h-screen backdrop-blur-md px-3 py-4 md:px-2 float-right">
@@ -34,26 +64,26 @@ export default function SideNav() {
         <div className="px-6 py-4">
           <div className="font-bold text-lg mb-4">Urban Key Data Point</div>
           <div className="flex flex-row gap-3">
-            <Select onValueChange={ handleYearChange }>
+            <Select onValueChange={handleYearChange}>
               <SelectTrigger className="w-full bg-teal-500 text-white font-semibold focus:outline-gray-500">
                 <SelectValue placeholder="Years" />
               </SelectTrigger>
               <SelectContent>
                 {
-                  years.map((year) => {
-                    return <SelectItem value={year}>{year}</SelectItem>
+                  years.map((year, id) => {
+                    return <SelectItem value={year} key={id}>{year}</SelectItem>
                   })
                 }
               </SelectContent>
             </Select>
-            <Select onValueChange={ handleMonthChange }>
+            <Select onValueChange={handleMonthChange}>
               <SelectTrigger className="w-full bg-teal-500 text-white font-semibold focus:outline-gray-500">
                 <SelectValue placeholder="Months" />
               </SelectTrigger>
               <SelectContent>
                 {
-                  months.map((month) => {
-                    return <SelectItem value={month}>{month}</SelectItem>
+                  months.map((month, id) => {
+                    return <SelectItem value={month} key={id}>{month}</SelectItem>
                   })
                 }
               </SelectContent>
