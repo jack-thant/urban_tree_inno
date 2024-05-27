@@ -12,6 +12,8 @@ import {
 import { years, months } from "@/constants/yearMonth";
 import { useEffect, useRef, useState } from "react";
 import { TemperatureRecord } from "../lib/definitions";
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label";
 
 interface SideNavProps {
   sendDataToParent: (tempData: TemperatureRecord[]) => void;
@@ -104,9 +106,7 @@ export default function SideNav({ sendDataToParent }: SideNavProps) {
                 <p className="font-semibold text-sm ml-3">Heat Spot Data</p>
               </div>
 
-              <label htmlFor="one" className="mt-1">
-                <input id="one" type="checkbox" />
-              </label>
+              <Switch id="heat_spot"/>
             </div>
           </div>
           {/* Population Density Area */}
