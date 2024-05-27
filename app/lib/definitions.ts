@@ -14,3 +14,8 @@ export type INITIAL_VIEW_STATE_FRAME = {
     pitch: number, // Camera pitch (tilt) in degrees
     bearing: number, // Camera bearing (rotation) in degrees
 }
+
+export type MarkerT = {
+    latitude: number,
+    longitude: number
+}
