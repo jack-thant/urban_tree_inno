@@ -11,12 +11,13 @@ import {
 } from "@/components/ui/select";
 import { years, months } from "@/constants/yearMonth";
 import { useEffect, useRef, useState } from "react";
-import { TemperatureRecord } from "../lib/definitions";
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label";
+import Legend from "./legend";
+import { InterpolatedTempRecord } from "../lib/definitions";
 
 interface SideNavProps {
-  sendDataToParent: (tempData: TemperatureRecord[]) => void;
+  sendDataToParent: (tempData: InterpolatedTempRecord[]) => void;
   heatSpotChecked: (checked: boolean) => void;
 }
 
@@ -24,8 +25,10 @@ export default function SideNav({ sendDataToParent, heatSpotChecked }: SideNavPr
 
   const [year, setYear] = useState("");
   const [month, setMonth] = useState("");
-  const [tempData, setTempData] = useState<TemperatureRecord[]>([]);
+  const [tempData, setTempData] = useState<InterpolatedTempRecord[]>([]);
   const [toggleHeatSpot, setHeatSpot] = useState<boolean>(false);
+
+  const heatMapColorRange: Array<string> = ["#ffffb2", "#fed976", "#feb24c", "#fd8d3c", "#f03b20", "#bd0026"]
 
   const handleYearChange = (value: string) => {
     setYear(value);
@@ -111,7 +114,7 @@ export default function SideNav({ sendDataToParent, heatSpotChecked }: SideNavPr
                 <p className="font-semibold text-sm ml-3">Heat Spot Data</p>
               </div>
 
-              <Switch id="heat_spot" onCheckedChange={handleHeatSpotCheckedChange}/>
+              <Switch id="heat_spot" onCheckedChange={handleHeatSpotCheckedChange} />
             </div>
           </div>
           {/* Population Density Area */}
@@ -156,6 +159,12 @@ export default function SideNav({ sendDataToParent, heatSpotChecked }: SideNavPr
           </div>
         </div>
       </div>
+      {
+        toggleHeatSpot && (
+          <Legend colorRange={heatMapColorRange} />
+        )
+      }
+
       {/* Impact Assessment */}
       <div className="bg-white rounded-lg text-black min-w-[300px] overflow-auto">
         <div className="px-6 py-4">

@@ -1,23 +1,21 @@
 "use client"
 
-import Map, { NavigationControl } from 'react-map-gl';
+import Map, { NavigationControl, useMap } from 'react-map-gl';
 import { DeckGL } from '@deck.gl/react';
 import "mapbox-gl/dist/mapbox-gl.css";
 import { lightingEffect, material, INITIAL_VIEW_STATE, colorRange } from "@/app/lib/mapconfig";
 import Image from 'next/image';
 import SideNav from './sidenav';
-import { TemperatureRecord } from '../lib/definitions';
 import { useEffect, useState } from 'react';
 import { HeatmapLayer } from '@deck.gl/aggregation-layers';
-import { ScatterplotLayer } from 'deck.gl';
-
+import { InterpolatedTempRecord } from '../lib/definitions';
 
 export default function LocationAggregatorMap() {
 
-    const [tempDataFromSideNav, setTempDataFromSideNav] = useState<TemperatureRecord[]>([]);
+    const [tempDataFromSideNav, setTempDataFromSideNav] = useState<InterpolatedTempRecord[]>([]);
     const [toggleHeatSpotFromSideNav, setHeatSpotFromSideNav] = useState<boolean>();
 
-    const handleTempDataFromSideNav = (data: TemperatureRecord[]) => {
+    const handleTempDataFromSideNav = (data: InterpolatedTempRecord[]) => {
         setTempDataFromSideNav(data);
     }
 
@@ -28,13 +26,15 @@ export default function LocationAggregatorMap() {
     const filteredData = tempDataFromSideNav.filter(e => e['Mean Temperature'] !== null)
 
     const layers = toggleHeatSpotFromSideNav && filteredData ? [
-        new HeatmapLayer<TemperatureRecord>({
+        new HeatmapLayer<InterpolatedTempRecord>({
             id: 'temperature-change',
             data: filteredData,
             aggregation: 'SUM',
-            radiusPixels: 40,
-            getPosition: (d: TemperatureRecord) => [d.lon, d.lat],
-            getWeight: (d: TemperatureRecord) => d['Mean Temperature']
+            radiusPixels: 30,
+            opacity: 0.4,
+            getPosition: (d: InterpolatedTempRecord) => [d.lon, d.lat],
+            getWeight: (d: InterpolatedTempRecord) => d['Mean Temperature'],
+            // colorRange: [[239, 71, 111],[247, 140, 107],[255, 209, 102],[6, 214, 160],[17, 138, 178],[7, 59, 76]],
         })
     ] : [];
 
@@ -46,6 +46,7 @@ export default function LocationAggregatorMap() {
                     initialViewState={INITIAL_VIEW_STATE}
                     controller={true}
                     layers={layers}
+                    onClick={() => console.log('clicked')}
                 >
                     <Map
                         mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
@@ -87,6 +88,7 @@ export default function LocationAggregatorMap() {
                         </div>
                     </div>
                     <SideNav sendDataToParent={handleTempDataFromSideNav} heatSpotChecked={handleHeatSpotToggleFromSideNav}></SideNav>
+                    
                 </DeckGL>
             </div>
         </>

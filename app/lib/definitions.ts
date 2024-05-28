@@ -20,13 +20,9 @@ export type MarkerT = {
     longitude: number
 }
 
-export interface TemperatureRecord {
-    year: number;
-    month: number;
-    station_id: string;
-    station_name: string;
-    lat: number;
-    lon: number;
-    "Mean Temperature": number; // Prefer using camelCase for consistency
+export interface InterpolatedTempRecord {
+    lat: number,
+    lon: number,
+    "Mean Temperature": number
 }
   
