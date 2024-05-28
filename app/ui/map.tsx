@@ -1,19 +1,21 @@
 "use client"
 
-import Map, { NavigationControl, useMap } from 'react-map-gl';
+import Map, { Marker, NavigationControl, useMap } from 'react-map-gl';
 import { DeckGL } from '@deck.gl/react';
 import "mapbox-gl/dist/mapbox-gl.css";
 import { lightingEffect, material, INITIAL_VIEW_STATE, colorRange } from "@/app/lib/mapconfig";
-import Image from 'next/image';
 import SideNav from './sidenav';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { HeatmapLayer } from '@deck.gl/aggregation-layers';
-import { InterpolatedTempRecord } from '../lib/definitions';
+import { InterpolatedTempRecord, MarkerPosition } from '../lib/definitions';
+import Image from 'next/image';
+import { PickingInfo } from '@deck.gl/core';
 
 export default function LocationAggregatorMap() {
 
     const [tempDataFromSideNav, setTempDataFromSideNav] = useState<InterpolatedTempRecord[]>([]);
     const [toggleHeatSpotFromSideNav, setHeatSpotFromSideNav] = useState<boolean>();
+    const [markers, setMarkers] = useState<number[][]>([]);
 
     const handleTempDataFromSideNav = (data: InterpolatedTempRecord[]) => {
         setTempDataFromSideNav(data);
@@ -38,6 +40,14 @@ export default function LocationAggregatorMap() {
         })
     ] : [];
 
+    const handleMapClick = (info: PickingInfo<MarkerPosition>) => {
+        const position: number[] | undefined = info.coordinate;
+        if (position && position.length === 2) {
+            setMarkers((prevMarkers) => [...prevMarkers, position]);
+            console.log('Clicked location:', position);
+        }
+    }
+
     return (
         <>
             <div>
@@ -46,18 +56,23 @@ export default function LocationAggregatorMap() {
                     initialViewState={INITIAL_VIEW_STATE}
                     controller={true}
                     layers={layers}
-                    onClick={() => console.log('clicked')}
+                    onClick={handleMapClick}
                 >
                     <Map
+                        reuseMaps
                         mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
                         // mapStyle="https://www.onemap.gov.sg/maps/json/raster/mbstyle/Night.json"
-                        mapStyle="mapbox://styles/mapbox/outdoors-v12"
+                        // mapStyle="mapbox://styles/mapbox/outdoors-v12"
+                        mapStyle="mapbox://styles/mapbox/dark-v11"
                     >
                         <NavigationControl
                             position='bottom-left' />
+                        {markers.map((marker, index) => (
+                            <Marker key={index} longitude={marker[0]} latitude={marker[1]} anchor="bottom">
+                                <Image src="./mingcute_tree-2-fill.svg" width={40} height={40} alt="marker" />
+                            </Marker>
+                        ))}
                     </Map>
-
-
 
                     <div className="absolute text-white min-h-[100px] top-10 left-10 rounded-lg p-4 text-sm bg-white">
                         <div className="flex flex-row">
@@ -88,7 +103,7 @@ export default function LocationAggregatorMap() {
                         </div>
                     </div>
                     <SideNav sendDataToParent={handleTempDataFromSideNav} heatSpotChecked={handleHeatSpotToggleFromSideNav}></SideNav>
-                    
+
                 </DeckGL>
             </div>
         </>

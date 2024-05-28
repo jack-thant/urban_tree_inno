@@ -15,14 +15,13 @@ export type INITIAL_VIEW_STATE_FRAME = {
     bearing: number, // Camera bearing (rotation) in degrees
 }
 
-export type MarkerT = {
-    latitude: number,
-    longitude: number
-}
-
 export interface InterpolatedTempRecord {
     lat: number,
     lon: number,
     "Mean Temperature": number
+}
+
+export type MarkerPosition = {
+    position: [longitude: number, latitude: number];
 }
   
