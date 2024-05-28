@@ -17,13 +17,15 @@ import { Label } from "@/components/ui/label";
 
 interface SideNavProps {
   sendDataToParent: (tempData: TemperatureRecord[]) => void;
+  heatSpotChecked: (checked: boolean) => void;
 }
 
-export default function SideNav({ sendDataToParent }: SideNavProps) {
+export default function SideNav({ sendDataToParent, heatSpotChecked }: SideNavProps) {
 
   const [year, setYear] = useState("");
   const [month, setMonth] = useState("");
   const [tempData, setTempData] = useState<TemperatureRecord[]>([]);
+  const [toggleHeatSpot, setHeatSpot] = useState<boolean>(false);
 
   const handleYearChange = (value: string) => {
     setYear(value);
@@ -31,6 +33,10 @@ export default function SideNav({ sendDataToParent }: SideNavProps) {
 
   const handleMonthChange = (value: string) => {
     setMonth(value);
+  }
+
+  const handleHeatSpotCheckedChange = (checked: boolean) => {
+    setHeatSpot(checked);
   }
   // for testing
   // console.log(`Year: ${year}, Month: ${month}`)
@@ -54,10 +60,9 @@ export default function SideNav({ sendDataToParent }: SideNavProps) {
     if (tempData) {
       sendDataToParent(tempData);
     }
-
   }, [tempData, sendDataToParent])
 
-
+  heatSpotChecked(toggleHeatSpot)
 
   return (
     <div className="flex flex-col h-screen backdrop-blur-md px-3 py-4 md:px-2 float-right">
@@ -106,7 +111,7 @@ export default function SideNav({ sendDataToParent }: SideNavProps) {
                 <p className="font-semibold text-sm ml-3">Heat Spot Data</p>
               </div>
 
-              <Switch id="heat_spot"/>
+              <Switch id="heat_spot" onCheckedChange={handleHeatSpotCheckedChange}/>
             </div>
           </div>
           {/* Population Density Area */}

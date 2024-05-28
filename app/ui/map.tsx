@@ -15,23 +15,28 @@ import { ScatterplotLayer } from 'deck.gl';
 export default function LocationAggregatorMap() {
 
     const [tempDataFromSideNav, setTempDataFromSideNav] = useState<TemperatureRecord[]>([]);
+    const [toggleHeatSpotFromSideNav, setHeatSpotFromSideNav] = useState<boolean>();
 
     const handleTempDataFromSideNav = (data: TemperatureRecord[]) => {
         setTempDataFromSideNav(data);
     }
+
+    const handleHeatSpotToggleFromSideNav = (checked: boolean) => {
+        setHeatSpotFromSideNav(checked);
+    }
     // Filter out records with null meanTemperature values
     const filteredData = tempDataFromSideNav.filter(e => e['Mean Temperature'] !== null)
 
-    const layers = [
+    const layers = toggleHeatSpotFromSideNav && filteredData ? [
         new HeatmapLayer<TemperatureRecord>({
             id: 'temperature-change',
-            data: tempDataFromSideNav,
+            data: filteredData,
             aggregation: 'SUM',
             radiusPixels: 40,
             getPosition: (d: TemperatureRecord) => [d.lon, d.lat],
             getWeight: (d: TemperatureRecord) => d['Mean Temperature']
         })
-    ]
+    ] : [];
 
     return (
         <>
@@ -81,7 +86,7 @@ export default function LocationAggregatorMap() {
                             </button>
                         </div>
                     </div>
-                    <SideNav sendDataToParent={handleTempDataFromSideNav}></SideNav>
+                    <SideNav sendDataToParent={handleTempDataFromSideNav} heatSpotChecked={handleHeatSpotToggleFromSideNav}></SideNav>
                 </DeckGL>
             </div>
         </>
