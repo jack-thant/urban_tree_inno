@@ -28,7 +28,13 @@ export default function SideNav({ sendDataToParent, heatSpotChecked }: SideNavPr
   const [tempData, setTempData] = useState<InterpolatedTempRecord[]>([]);
   const [toggleHeatSpot, setHeatSpot] = useState<boolean>(false);
 
-  const heatMapColorRange: Array<string> = ["#ffffb2", "#fed976", "#feb24c", "#fd8d3c", "#f03b20", "#bd0026"]
+  // const heatMapColorRange: Array<string> = ["#ffffb2", "#fed976", "#feb24c", "#fd8d3c", "#f03b20", "#bd0026"]
+
+  const heatMapColorRange: Array<string> = ["#3F7FFF", "#5C9CFF", "#79B6FF", "#FF0000", "#B03060", "#C62828" ]
+
+  const heatMapNumberLegend: Array<number> = [19,20,23,26,29,33,38]
+
+  const heatMapLegendTitle: string = "Temperature Legend (°C)"
 
   const handleYearChange = (value: string) => {
     setYear(value);
@@ -161,7 +167,7 @@ export default function SideNav({ sendDataToParent, heatSpotChecked }: SideNavPr
       </div>
       {
         toggleHeatSpot && (
-          <Legend colorRange={heatMapColorRange} />
+          <Legend colorRange={heatMapColorRange} numberLegend={heatMapNumberLegend} title={heatMapLegendTitle}/>
         )
       }
 

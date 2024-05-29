@@ -37,16 +37,22 @@ export default function LocationAggregatorMap() {
             getPosition: (d: InterpolatedTempRecord) => [d.lon, d.lat],
             getWeight: (d: InterpolatedTempRecord) => d['Mean Temperature'],
             // colorRange: [[239, 71, 111],[247, 140, 107],[255, 209, 102],[6, 214, 160],[17, 138, 178],[7, 59, 76]],
+            colorRange: [[63,127,255],[92,156,255],[121,182,255],[255,0,0],[176,48,96],[198,40,40]],
+            colorDomain: [0,100],
         })
     ] : [];
 
+    // Function to handle clicks on the map
     const handleMapClick = (info: PickingInfo<MarkerPosition>) => {
+        // Get the position from the click event
         const position: number[] | undefined = info.coordinate;
+
+        // Check if the position is valid and has exactly two elements (longitude and latitude)
         if (position && position.length === 2) {
+            // Update the state to add the new marker position
             setMarkers((prevMarkers) => [...prevMarkers, position]);
-            console.log('Clicked location:', position);
         }
-    }
+    };
 
     return (
         <>
@@ -62,8 +68,8 @@ export default function LocationAggregatorMap() {
                         reuseMaps
                         mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
                         // mapStyle="https://www.onemap.gov.sg/maps/json/raster/mbstyle/Night.json"
-                        // mapStyle="mapbox://styles/mapbox/outdoors-v12"
-                        mapStyle="mapbox://styles/mapbox/dark-v11"
+                        mapStyle="mapbox://styles/mapbox/outdoors-v12"
+                        // mapStyle="mapbox://styles/mapbox/dark-v11"
                     >
                         <NavigationControl
                             position='bottom-left' />
