@@ -10,12 +10,21 @@ import { HeatmapLayer } from '@deck.gl/aggregation-layers';
 import { InterpolatedTempRecord, MarkerPosition } from '../lib/definitions';
 import Image from 'next/image';
 import { PickingInfo } from '@deck.gl/core';
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover"
 
 export default function LocationAggregatorMap() {
 
     const [tempDataFromSideNav, setTempDataFromSideNav] = useState<InterpolatedTempRecord[]>([]);
     const [toggleHeatSpotFromSideNav, setHeatSpotFromSideNav] = useState<boolean>();
     const [markers, setMarkers] = useState<number[][]>([]);
+    const [lastAddedMarkerIndex, setLastAddedMarkerIndex] = useState<number | null>(null);
 
     const handleTempDataFromSideNav = (data: InterpolatedTempRecord[]) => {
         setTempDataFromSideNav(data);
@@ -37,8 +46,8 @@ export default function LocationAggregatorMap() {
             getPosition: (d: InterpolatedTempRecord) => [d.lon, d.lat],
             getWeight: (d: InterpolatedTempRecord) => d['Mean Temperature'],
             // colorRange: [[239, 71, 111],[247, 140, 107],[255, 209, 102],[6, 214, 160],[17, 138, 178],[7, 59, 76]],
-            colorRange: [[63,127,255],[92,156,255],[121,182,255],[255,0,0],[176,48,96],[198,40,40]],
-            colorDomain: [0,100],
+            colorRange: [[63, 127, 255], [92, 156, 255], [121, 182, 255], [255, 0, 0], [176, 48, 96], [198, 40, 40]],
+            colorDomain: [0, 100],
         })
     ] : [];
 
@@ -50,7 +59,11 @@ export default function LocationAggregatorMap() {
         // Check if the position is valid and has exactly two elements (longitude and latitude)
         if (position && position.length === 2) {
             // Update the state to add the new marker position
-            setMarkers((prevMarkers) => [...prevMarkers, position]);
+            setMarkers((prevMarkers) => {
+                const newMarkers = [...prevMarkers, position];
+                setLastAddedMarkerIndex(newMarkers.length - 1);
+                return newMarkers;
+            });
         }
     };
 
@@ -69,13 +82,36 @@ export default function LocationAggregatorMap() {
                         mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
                         // mapStyle="https://www.onemap.gov.sg/maps/json/raster/mbstyle/Night.json"
                         mapStyle="mapbox://styles/mapbox/outdoors-v12"
-                        // mapStyle="mapbox://styles/mapbox/dark-v11"
+                    // mapStyle="mapbox://styles/mapbox/dark-v11"
                     >
                         <NavigationControl
                             position='bottom-left' />
                         {markers.map((marker, index) => (
                             <Marker key={index} longitude={marker[0]} latitude={marker[1]} anchor="bottom">
-                                <Image src="./mingcute_tree-2-fill.svg" width={40} height={40} alt="marker" />
+                                <Popover open={lastAddedMarkerIndex === index}>
+                                    <PopoverTrigger asChild>
+                                        <Image src="./mingcute_tree-2-fill.svg" width={40} height={40} alt="marker" />
+                                    </PopoverTrigger>
+                                    <PopoverContent className='w-80'>
+
+                                        <div className="grid gap-4 p-2">
+                                            <h2 className="font-bold text-lg leading-none text-teal-500">Plant Trees</h2>
+                                            <div className="grid gap-2">
+                                                <div className="grid grid-cols-3 items-center gap-4">
+                                                    <Label htmlFor="width" className="leading-5">Number of Trees: </Label>
+                                                    <Input
+                                                        id="width"
+                                                        defaultValue="100"
+                                                        className="col-span-2 h-8"
+                                                    />
+                                                </div>
+                                                <Button className='bg-teal-500 mt-3'>Submit</Button>
+
+                                            </div>
+                                        </div>
+                                    </PopoverContent>
+                                </Popover>
+
                             </Marker>
                         ))}
                     </Map>
