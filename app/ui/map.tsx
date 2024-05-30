@@ -7,7 +7,7 @@ import { lightingEffect, material, INITIAL_VIEW_STATE, colorRange } from "@/app/
 import SideNav from './sidenav';
 import { useState } from 'react';
 import { HeatmapLayer } from '@deck.gl/aggregation-layers';
-import { InterpolatedTempRecord, MarkerPosition } from '../lib/definitions';
+import { ImpactAssessment, InterpolatedTempRecord, MarkerPosition } from '../lib/definitions';
 import Image from 'next/image';
 import { PickingInfo } from '@deck.gl/core';
 import { Button } from "@/components/ui/button"
@@ -25,6 +25,7 @@ export default function LocationAggregatorMap() {
     const [toggleHeatSpotFromSideNav, setHeatSpotFromSideNav] = useState<boolean>();
     const [markers, setMarkers] = useState<number[][]>([]);
     const [lastAddedMarkerIndex, setLastAddedMarkerIndex] = useState<number | null>(null);
+    const [impactAssessment, setImpactAssessment] = useState<ImpactAssessment>();
 
     const handleTempDataFromSideNav = (data: InterpolatedTempRecord[]) => {
         setTempDataFromSideNav(data);
@@ -66,6 +67,32 @@ export default function LocationAggregatorMap() {
             });
         }
     };
+    const handleSubmitTrees = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+
+        // Access form data using event.currentTarget
+        const formData = new FormData(event.currentTarget);
+        const trees = Number(formData.get('trees'));
+
+        try {
+            const response = await fetch('http://127.0.0.1:8000/api/impact_assessment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ number_of_trees: trees })
+            })
+            if (!response.ok) {
+                throw new Error('Cannot fetch the data');
+            }
+            const data = await response.json();
+            console.log('Response from the backend API: ', data);
+            setImpactAssessment(data);
+            
+        } catch (error) {
+            console.error('There was a problem with the fetch operation:', error);
+        }
+    }
 
     return (
         <>
@@ -93,22 +120,24 @@ export default function LocationAggregatorMap() {
                                         <Image src="./mingcute_tree-2-fill.svg" width={40} height={40} alt="marker" />
                                     </PopoverTrigger>
                                     <PopoverContent className='w-80'>
-
-                                        <div className="grid gap-4 p-2">
-                                            <h2 className="font-bold text-lg leading-none text-teal-500">Plant Trees</h2>
-                                            <div className="grid gap-2">
-                                                <div className="grid grid-cols-3 items-center gap-4">
-                                                    <Label htmlFor="width" className="leading-5">Number of Trees: </Label>
-                                                    <Input
-                                                        id="width"
-                                                        defaultValue="100"
-                                                        className="col-span-2 h-8"
-                                                    />
+                                        <form onSubmit={handleSubmitTrees}>
+                                            <div className="grid gap-4 p-2">
+                                                <h2 className="font-bold text-lg leading-none text-teal-500">Plant Trees</h2>
+                                                <div className="grid gap-2">
+                                                    <div className="grid grid-cols-3 items-center gap-4">
+                                                        <Label htmlFor="width" className="leading-5">Number of Trees: </Label>
+                                                        <Input
+                                                            type='number'
+                                                            id="trees"
+                                                            name='trees'
+                                                            defaultValue={100}
+                                                            className="col-span-2 h-8"
+                                                        />
+                                                    </div>
+                                                    <Button type='submit' className='bg-teal-500 mt-3'>Submit</Button>
                                                 </div>
-                                                <Button className='bg-teal-500 mt-3'>Submit</Button>
-
                                             </div>
-                                        </div>
+                                        </form>
                                     </PopoverContent>
                                 </Popover>
 
@@ -144,7 +173,7 @@ export default function LocationAggregatorMap() {
                             </button>
                         </div>
                     </div>
-                    <SideNav sendDataToParent={handleTempDataFromSideNav} heatSpotChecked={handleHeatSpotToggleFromSideNav}></SideNav>
+                    <SideNav sendDataToParent={handleTempDataFromSideNav} heatSpotChecked={handleHeatSpotToggleFromSideNav} impactStats={impactAssessment}></SideNav>
 
                 </DeckGL>
             </div>

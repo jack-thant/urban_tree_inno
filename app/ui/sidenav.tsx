@@ -12,16 +12,16 @@ import {
 import { years, months } from "@/constants/yearMonth";
 import { useEffect, useRef, useState } from "react";
 import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label";
 import Legend from "./legend";
-import { InterpolatedTempRecord } from "../lib/definitions";
+import { ImpactAssessment, InterpolatedTempRecord } from "../lib/definitions";
 
 interface SideNavProps {
   sendDataToParent: (tempData: InterpolatedTempRecord[]) => void;
   heatSpotChecked: (checked: boolean) => void;
+  impactStats: ImpactAssessment | undefined;
 }
 
-export default function SideNav({ sendDataToParent, heatSpotChecked }: SideNavProps) {
+export default function SideNav({ sendDataToParent, heatSpotChecked, impactStats }: SideNavProps) {
 
   const [year, setYear] = useState("");
   const [month, setMonth] = useState("");
@@ -172,22 +172,25 @@ export default function SideNav({ sendDataToParent, heatSpotChecked }: SideNavPr
       }
 
       {/* Impact Assessment */}
-      <div className="bg-white rounded-lg text-black min-w-[300px] overflow-auto">
+      { impactStats && (
+        <div className="bg-white rounded-lg text-black min-w-[300px] overflow-auto">
         <div className="px-6 py-4">
           <div className="font-bold text-lg mb-4">Impact Assessment</div>
           <div className="flex flex-col">
             <div className="flex flex-col justify-between gap-y-5 mt-2">
-              <StatsListItem image_src="tree-fill" title="Planted Trees" statistics={0} arrow_up_down="arrow_up_green" growth_percentage={1} />
-              <StatsListItem image_src="tree-notfill" title="Total Number of Trees" statistics={100000} arrow_up_down="arrow_up_green" growth_percentage={1} />
-              <StatsListItem image_src="tree-notfill" title="Annual Number of Trees" statistics={5000} arrow_up_down="arrow_up_green" growth_percentage={5} />
-              <StatsListItem image_src="cloud" title="Annual Carbon Sequestration (kg CO2)" statistics={5000} arrow_up_down="arrow_down_green" growth_percentage={1} />
-              <StatsListItem image_src="air" title="Air Pollutants Removed (kg/year)" statistics={200} arrow_up_down="arrow_down_green" growth_percentage={1} />
-              <StatsListItem image_src="storm-water" title="Stormwater Runoff Reduction (m3/year)" statistics={1000} arrow_up_down="arrow_down_green" growth_percentage={5} />
-              <StatsListItem image_src="temperature" title="Average Temperature Reduction (C)" statistics={1.5} arrow_up_down="arrow_down_green" growth_percentage={1} />
+              <StatsListItem image_src="tree-fill" title="Planted Trees" statistics={impactStats ? impactStats.planted_trees : 0} arrow_up_down="arrow_up_green" growth_percentage={1} />
+              <StatsListItem image_src="tree-notfill" title="Total Number of Trees" statistics={impactStats ? impactStats.totalNumberOfTrees : 0} arrow_up_down="arrow_up_green" growth_percentage={1} />
+              <StatsListItem image_src="tree-notfill" title="Annual Number of Trees" statistics={impactStats ? impactStats.annualNumberOfTrees : 0} arrow_up_down="arrow_up_green" growth_percentage={5} />
+              <StatsListItem image_src="cloud" title="Annual Carbon Sequestration (kg CO2)" statistics={impactStats ? impactStats.annualCarbonSequestration : 0} arrow_up_down="arrow_down_green" growth_percentage={1} />
+              <StatsListItem image_src="air" title="Air Pollutants Removed (kg/year)" statistics={impactStats ? impactStats.airPollutantsRemoved : 0} arrow_up_down="arrow_down_green" growth_percentage={1} />
+              <StatsListItem image_src="storm-water" title="Stormwater Runoff Reduction (m3/year)" statistics={impactStats ? impactStats.stormWaterRunOffReduction : 0} arrow_up_down="arrow_down_green" growth_percentage={5} />
+              <StatsListItem image_src="temperature" title="Average Temperature Reduction (C)" statistics={impactStats ? impactStats.averageTemperatureReduction : 0} arrow_up_down="arrow_down_green" growth_percentage={1} />
             </div>
           </div>
         </div>
       </div>
+      )}
+      
     </div>
   );
 }

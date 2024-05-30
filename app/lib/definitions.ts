@@ -24,4 +24,15 @@ export interface InterpolatedTempRecord {
 export type MarkerPosition = {
     position: [longitude: number, latitude: number];
 }
+
+export type ImpactAssessment = {
+    message: string,
+    planted_trees: number,
+    totalNumberOfTrees: number,
+    annualNumberOfTrees: number,
+    annualCarbonSequestration: number,
+    airPollutantsRemoved: number,
+    stormWaterRunOffReduction: number,
+    averageTemperatureReduction: number
+}
   
