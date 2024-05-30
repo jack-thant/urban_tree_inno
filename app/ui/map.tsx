@@ -26,6 +26,7 @@ export default function LocationAggregatorMap() {
     const [markers, setMarkers] = useState<number[][]>([]);
     const [lastAddedMarkerIndex, setLastAddedMarkerIndex] = useState<number | null>(null);
     const [impactAssessment, setImpactAssessment] = useState<ImpactAssessment>();
+    const [popoverOpen, setPopoverOpen] = useState<number | null>(null);
 
     const handleTempDataFromSideNav = (data: InterpolatedTempRecord[]) => {
         setTempDataFromSideNav(data);
@@ -63,6 +64,7 @@ export default function LocationAggregatorMap() {
             setMarkers((prevMarkers) => {
                 const newMarkers = [...prevMarkers, position];
                 setLastAddedMarkerIndex(newMarkers.length - 1);
+                setPopoverOpen(newMarkers.length - 1);
                 return newMarkers;
             });
         }
@@ -88,6 +90,7 @@ export default function LocationAggregatorMap() {
             const data = await response.json();
             console.log('Response from the backend API: ', data);
             setImpactAssessment(data);
+            setPopoverOpen(null);
             
         } catch (error) {
             console.error('There was a problem with the fetch operation:', error);
@@ -115,7 +118,7 @@ export default function LocationAggregatorMap() {
                             position='bottom-left' />
                         {markers.map((marker, index) => (
                             <Marker key={index} longitude={marker[0]} latitude={marker[1]} anchor="bottom">
-                                <Popover open={lastAddedMarkerIndex === index}>
+                                <Popover open={lastAddedMarkerIndex === index && popoverOpen === index}>
                                     <PopoverTrigger asChild>
                                         <Image src="./mingcute_tree-2-fill.svg" width={40} height={40} alt="marker" />
                                     </PopoverTrigger>
