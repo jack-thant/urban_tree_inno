@@ -87,11 +87,27 @@ export default function LocationAggregatorMap() {
             if (!response.ok) {
                 throw new Error('Cannot fetch the data');
             }
-            const data = await response.json();
+            const data: ImpactAssessment = await response.json();
             console.log('Response from the backend API: ', data);
-            setImpactAssessment(data);
+            setImpactAssessment(prevImpactAssessment => {
+                if (prevImpactAssessment)
+                {
+                    return {
+                        message: data.message,
+                        planted_trees: prevImpactAssessment.planted_trees + data.planted_trees,
+                        totalNumberOfTrees: prevImpactAssessment.totalNumberOfTrees + data.totalNumberOfTrees,
+                        annualNumberOfTrees: prevImpactAssessment.annualNumberOfTrees + data.annualNumberOfTrees,
+                        annualCarbonSequestration: prevImpactAssessment.annualCarbonSequestration + data.annualCarbonSequestration,
+                        airPollutantsRemoved: prevImpactAssessment.airPollutantsRemoved + data.airPollutantsRemoved,
+                        stormWaterRunOffReduction: prevImpactAssessment.stormWaterRunOffReduction + data.stormWaterRunOffReduction,
+                        averageTemperatureReduction: prevImpactAssessment.averageTemperatureReduction + data.averageTemperatureReduction,
+                    }
+                } else {
+                    return data;
+                }
+            })
             setPopoverOpen(null);
-            
+
         } catch (error) {
             console.error('There was a problem with the fetch operation:', error);
         }
