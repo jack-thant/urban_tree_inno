@@ -28,8 +28,8 @@ export type MarkerPosition = {
 export type ImpactAssessment = {
     message: string,
     planted_trees: number,
-    totalNumberOfTrees: number,
-    annualNumberOfTrees: number,
+    totalNumberOfTrees: Array<number>,
+    annualEnergySaved: number,
     annualCarbonSequestration: number,
     airPollutantsRemoved: number,
     stormWaterRunOffReduction: number,

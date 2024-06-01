@@ -30,9 +30,9 @@ export default function SideNav({ sendDataToParent, heatSpotChecked, impactStats
 
   // const heatMapColorRange: Array<string> = ["#ffffb2", "#fed976", "#feb24c", "#fd8d3c", "#f03b20", "#bd0026"]
 
-  const heatMapColorRange: Array<string> = ["#3F7FFF", "#5C9CFF", "#79B6FF", "#FF0000", "#B03060", "#C62828" ]
+  const heatMapColorRange: Array<string> = ["#3F7FFF", "#5C9CFF", "#79B6FF", "#FF0000", "#B03060", "#C62828"]
 
-  const heatMapNumberLegend: Array<number> = [19,20,23,26,29,33,38]
+  const heatMapNumberLegend: Array<number> = [19, 20, 23, 26, 29, 33, 38]
 
   const heatMapLegendTitle: string = "Temperature Legend (°C)"
 
@@ -167,30 +167,30 @@ export default function SideNav({ sendDataToParent, heatSpotChecked, impactStats
       </div>
       {
         toggleHeatSpot && (
-          <Legend colorRange={heatMapColorRange} numberLegend={heatMapNumberLegend} title={heatMapLegendTitle}/>
+          <Legend colorRange={heatMapColorRange} numberLegend={heatMapNumberLegend} title={heatMapLegendTitle} />
         )
       }
 
       {/* Impact Assessment */}
-      { impactStats && (
+      {impactStats && (
         <div className="bg-white rounded-lg text-black min-w-[300px] overflow-auto">
-        <div className="px-6 py-4">
-          <div className="font-bold text-lg mb-4">Impact Assessment</div>
-          <div className="flex flex-col">
-            <div className="flex flex-col justify-between gap-y-5 mt-2">
-            <StatsListItem image_src="tree-fill" title="Planted Trees" statistics={impactStats.planted_trees} arrow_up_down="arrow_up_green" growth_percentage={1} />
-                    <StatsListItem image_src="tree-notfill" title="Total Number of Trees" statistics={impactStats.totalNumberOfTrees} arrow_up_down="arrow_up_green" growth_percentage={1} />
-                    <StatsListItem image_src="tree-notfill" title="Annual Number of Trees" statistics={impactStats.annualNumberOfTrees} arrow_up_down="arrow_up_green" growth_percentage={5} />
-                    <StatsListItem image_src="cloud" title="Annual Carbon Sequestration (kg CO2)" statistics={impactStats.annualCarbonSequestration} arrow_up_down="arrow_down_green" growth_percentage={1} />
-                    <StatsListItem image_src="air" title="Air Pollutants Removed (kg/year)" statistics={impactStats.airPollutantsRemoved} arrow_up_down="arrow_down_green" growth_percentage={1} />
-                    <StatsListItem image_src="storm-water" title="Stormwater Runoff Reduction (m3/year)" statistics={impactStats.stormWaterRunOffReduction} arrow_up_down="arrow_down_green" growth_percentage={5} />
-                    <StatsListItem image_src="temperature" title="Average Temperature Reduction (C)" statistics={impactStats.averageTemperatureReduction} arrow_up_down="arrow_down_green" growth_percentage={1} />
+          <div className="px-6 py-4">
+            <div className="font-bold text-lg mb-4">Impact Assessment</div>
+            <div className="flex flex-col">
+              <div className="flex flex-col justify-between gap-y-5 mt-2">
+                <StatsListItem image_src="tree-fill" title="Planted Trees" statistics={impactStats.planted_trees} arrow_up_down="arrow_up_green" growth_percentage={1} />
+                <StatsListItem image_src="tree-notfill" title="Total Number of Trees" statistics={impactStats.totalNumberOfTrees[0]} arrow_up_down="arrow_up_green" growth_percentage={Number(impactStats.totalNumberOfTrees[1].toFixed(2))} />
+                <StatsListItem image_src="bolt" title="Annual Energy Saved" statistics={impactStats.annualEnergySaved} arrow_up_down="arrow_up_green" growth_percentage={5} />
+                <StatsListItem image_src="cloud" title="Annual Carbon Sequestration (kg CO2)" statistics={impactStats.annualCarbonSequestration} arrow_up_down="arrow_down_green" growth_percentage={1} />
+                <StatsListItem image_src="air" title="Air Pollutants Removed (kg/year)" statistics={impactStats.airPollutantsRemoved} arrow_up_down="arrow_down_green" growth_percentage={1} />
+                <StatsListItem image_src="storm-water" title="Stormwater Runoff Reduction (m3/year)" statistics={impactStats.stormWaterRunOffReduction} arrow_up_down="arrow_down_green" growth_percentage={5} />
+                <StatsListItem image_src="temperature" title="Average Temperature Reduction (C)" statistics={impactStats.averageTemperatureReduction} arrow_up_down="arrow_down_green" growth_percentage={1} />
+              </div>
             </div>
           </div>
         </div>
-      </div>
       )}
-      
+
     </div>
   );
 }

@@ -28,6 +28,7 @@ export default function LocationAggregatorMap() {
     const [lastAddedMarkerIndex, setLastAddedMarkerIndex] = useState<number | null>(null);
     const [impactAssessment, setImpactAssessment] = useState<ImpactAssessment>();
     const [popoverOpen, setPopoverOpen] = useState<number | null>(null);
+    const [totalTreesPlanted, setTotalTreesPlanted] = useState<number>(0);
 
     const handleTempDataFromSideNav = (data: InterpolatedTempRecord[]) => {
         setTempDataFromSideNav(data);
@@ -77,36 +78,25 @@ export default function LocationAggregatorMap() {
         const formData = new FormData(event.currentTarget);
         const trees = Number(formData.get('trees'));
 
+        // Update total trees planted
+        const newTotalTreesPlanted = totalTreesPlanted + trees;
+        setTotalTreesPlanted(newTotalTreesPlanted);
+
         try {
             const response = await fetch('http://127.0.0.1:8000/api/impact_assessment', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ number_of_trees: trees })
+                body: JSON.stringify({ number_of_trees: newTotalTreesPlanted })
             })
             if (!response.ok) {
                 throw new Error('Cannot fetch the data');
             }
             const data: ImpactAssessment = await response.json();
             console.log('Response from the backend API: ', data);
-            setImpactAssessment(prevImpactAssessment => {
-                if (prevImpactAssessment)
-                {
-                    return {
-                        message: data.message,
-                        planted_trees: prevImpactAssessment.planted_trees + data.planted_trees,
-                        totalNumberOfTrees: prevImpactAssessment.totalNumberOfTrees + data.totalNumberOfTrees,
-                        annualNumberOfTrees: prevImpactAssessment.annualNumberOfTrees + data.annualNumberOfTrees,
-                        annualCarbonSequestration: prevImpactAssessment.annualCarbonSequestration + data.annualCarbonSequestration,
-                        airPollutantsRemoved: prevImpactAssessment.airPollutantsRemoved + data.airPollutantsRemoved,
-                        stormWaterRunOffReduction: prevImpactAssessment.stormWaterRunOffReduction + data.stormWaterRunOffReduction,
-                        averageTemperatureReduction: prevImpactAssessment.averageTemperatureReduction + data.averageTemperatureReduction,
-                    }
-                } else {
-                    return data;
-                }
-            })
+
+            setImpactAssessment(data);
             setPopoverOpen(null);
 
         } catch (error) {
