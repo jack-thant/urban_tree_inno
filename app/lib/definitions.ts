@@ -40,4 +40,9 @@ export type TreePosition = {
     lat: number,
     lon: number
 }
-  
+
+export const heatMapColorRange: Array<string> = ["#3F7FFF", "#5C9CFF", "#79B6FF", "#FF0000", "#B03060", "#C62828"]
+
+export const heatMapNumberLegend: Array<number> = [19, 20, 23, 26, 29, 33, 38]
+
+export const heatMapLegendTitle: string = "Temperature Legend (°C)"

@@ -4,12 +4,13 @@ import Map from 'react-map-gl';
 import { DeckGL } from '@deck.gl/react';
 import "mapbox-gl/dist/mapbox-gl.css";
 import { lightingEffect, INITIAL_VIEW_STATE } from "@/app/lib/mapconfig";
-import { InterpolatedTempRecord, TreePosition } from '../lib/definitions';
+import { heatMapColorRange, heatMapLegendTitle, heatMapNumberLegend, InterpolatedTempRecord, TreePosition } from '../lib/definitions';
 import { useEffect, useState } from 'react';
 import { ScatterplotLayer } from '@deck.gl/layers';
 import { ScreenGridLayer } from '@deck.gl/aggregation-layers';
 import { Switch } from "@/components/ui/switch"
 import Image from "next/image";
+import Legend from '../ui/legend';
 
 export default function Compare() {
 
@@ -117,7 +118,7 @@ export default function Compare() {
                         />
                         {/* Card to toggle */}
                         <div className="flex flex-col h-screen float-right px-3 py-4 md:px-2">
-                            <div className="bg-white min-w-[300px] rounded-lg text-blac px-6 py-4">
+                            <div className="bg-white min-w-[300px] rounded-lg text-blac px-6 py-4 mb-5">
                                 <h2 className='font-bold text-lg mb-4'>Layer Visibility Control</h2>
                                 <div className="flex flex-row justify-between gap-y-5 mt-4">
                                     <div className="inline-flex items-center">
@@ -143,7 +144,13 @@ export default function Compare() {
                                     </div>
                                     <Switch id="tree_spot" onCheckedChange={handleTreeSpotCheckedChange} />
                                 </div>
+
                             </div>
+                            {
+                                toggleHeatSpot && (
+                                    <Legend colorRange={heatMapColorRange} numberLegend={heatMapNumberLegend} title={heatMapLegendTitle} />
+                                )
+                            }
                         </div>
                     </DeckGL>
                 </div>

@@ -13,7 +13,7 @@ import { years, months } from "@/constants/yearMonth";
 import { useEffect, useRef, useState } from "react";
 import { Switch } from "@/components/ui/switch"
 import Legend from "./legend";
-import { ImpactAssessment, InterpolatedTempRecord } from "../lib/definitions";
+import { heatMapColorRange, heatMapLegendTitle, heatMapNumberLegend, ImpactAssessment, InterpolatedTempRecord } from "../lib/definitions";
 
 interface SideNavProps {
   sendDataToParent: (tempData: InterpolatedTempRecord[]) => void;
@@ -29,12 +29,6 @@ export default function SideNav({ sendDataToParent, heatSpotChecked, impactStats
   const [toggleHeatSpot, setHeatSpot] = useState<boolean>(false);
 
   // const heatMapColorRange: Array<string> = ["#ffffb2", "#fed976", "#feb24c", "#fd8d3c", "#f03b20", "#bd0026"]
-
-  const heatMapColorRange: Array<string> = ["#3F7FFF", "#5C9CFF", "#79B6FF", "#FF0000", "#B03060", "#C62828"]
-
-  const heatMapNumberLegend: Array<number> = [19, 20, 23, 26, 29, 33, 38]
-
-  const heatMapLegendTitle: string = "Temperature Legend (°C)"
 
   const handleYearChange = (value: string) => {
     setYear(value);
