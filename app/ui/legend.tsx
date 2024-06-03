@@ -18,7 +18,7 @@ export default function Legend({ colorRange, numberLegend, title }: LegendProps)
                         ></div>
                     ))}
                 </div>
-                <div className="flex flex-row gap-[26px] mt-1">
+                <div className="flex flex-row justify-between mt-1">
                     {
                         numberLegend.map((legend, id) => {
                             return (

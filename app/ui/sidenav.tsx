@@ -27,6 +27,8 @@ export default function SideNav({ sendDataToParent, heatSpotChecked, impactStats
   const [month, setMonth] = useState("");
   const [tempData, setTempData] = useState<InterpolatedTempRecord[]>([]);
   const [toggleHeatSpot, setHeatSpot] = useState<boolean>(false);
+  const [minTemperature, setMinTemperature] = useState<number>(0);
+  const [maxTemperature, setMaxTemperature] = useState<number>(0);
 
   // const heatMapColorRange: Array<string> = ["#ffffb2", "#fed976", "#feb24c", "#fd8d3c", "#f03b20", "#bd0026"]
 
@@ -48,7 +50,9 @@ export default function SideNav({ sendDataToParent, heatSpotChecked, impactStats
       try {
         const res = await fetch(`http://127.0.0.1:8000/mean_temperature/${yearMonth}`)
         const data = await res.json();
-        setTempData(data);
+        setMinTemperature(data.min_temp);
+        setMaxTemperature(data.max_temp);
+        setTempData(data.data);
       } catch (error) {
         console.log('Error fetching data: ', error);
       }
@@ -161,7 +165,7 @@ export default function SideNav({ sendDataToParent, heatSpotChecked, impactStats
       </div>
       {
         toggleHeatSpot && (
-          <Legend colorRange={heatMapColorRange} numberLegend={heatMapNumberLegend} title={heatMapLegendTitle} />
+          <Legend colorRange={heatMapColorRange} numberLegend={[Number(minTemperature.toFixed(2)), Number(maxTemperature.toFixed(2))]} title={heatMapLegendTitle} />
         )
       }
 

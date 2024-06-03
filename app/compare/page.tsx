@@ -3,14 +3,15 @@
 import Map from 'react-map-gl';
 import { DeckGL } from '@deck.gl/react';
 import "mapbox-gl/dist/mapbox-gl.css";
-import { lightingEffect, INITIAL_VIEW_STATE } from "@/app/lib/mapconfig";
-import { heatMapColorRange, heatMapLegendTitle, heatMapNumberLegend, InterpolatedTempRecord, TreePosition } from '../lib/definitions';
+import { INITIAL_VIEW_STATE, lightingEffect } from "@/app/lib/mapconfig";
+import { heatMapColorRange, heatMapLegendTitle, heatMapNumberLegend, INITIAL_VIEW_STATE_FRAME, InterpolatedTempRecord, TreePosition, ViewState } from '../lib/definitions';
 import { useEffect, useState } from 'react';
 import { ScatterplotLayer } from '@deck.gl/layers';
 import { ScreenGridLayer } from '@deck.gl/aggregation-layers';
 import { Switch } from "@/components/ui/switch"
 import Image from "next/image";
 import Legend from '../ui/legend';
+import { MapViewState, ViewStateChangeParameters } from '@deck.gl/core';
 
 export default function Compare() {
 
@@ -18,6 +19,7 @@ export default function Compare() {
     const [testData, setTestData] = useState(null);
     const [toggleHeatSpot, setHeatSpot] = useState<boolean>(false);
     const [toggleTree, setTreeToggle] = useState<boolean>(false);
+    const [viewState, setViewState] = useState<INITIAL_VIEW_STATE_FRAME>(INITIAL_VIEW_STATE);
 
     const handleHeatSpotCheckedChange = (checked: boolean) => {
         setHeatSpot(checked);
@@ -26,6 +28,11 @@ export default function Compare() {
     const handleTreeSpotCheckedChange = (checked: boolean) => {
         setTreeToggle(checked);
     }
+
+    const handleViewStateChange = (params: ViewStateChangeParameters<MapViewState>) => {
+        // TODO: Fix the type error
+        setViewState(params.viewState);
+    };
 
     useEffect(() => {
         const fetchTreeData = async () => {
@@ -74,12 +81,11 @@ export default function Compare() {
                 new ScreenGridLayer<InterpolatedTempRecord>({
                     id: 'heat-map-grid',
                     data: testData,
-                    opacity: 0.3,
+                    opacity: 0.8,
                     getPosition: d => [d.lon, d.lat],
                     getWeight: d => d['Mean Temperature'],
                     cellSizePixels: 15,
                     aggregation: "MEAN",
-                    colorRange: [[63, 127, 255], [92, 156, 255], [121, 182, 255], [255, 0, 0], [176, 48, 96], [198, 40, 40]],
                 })
             )
         }
@@ -92,7 +98,10 @@ export default function Compare() {
                 <div className="flex-1">
                     <DeckGL
                         effects={[lightingEffect]}
-                        initialViewState={INITIAL_VIEW_STATE}
+                        initialViewState={viewState}
+                        viewState={viewState}
+                        // TODO: Fix the type error
+                        onViewStateChange={handleViewStateChange}
                         controller={true}
                         width="50%"
                         layers={[layers]}
@@ -107,9 +116,11 @@ export default function Compare() {
                 </div>
                 <div style={{ height: '100vh', width: '50vw', position: 'relative' }}>
                     <DeckGL
-                        effects={[lightingEffect]}
-                        initialViewState={INITIAL_VIEW_STATE}
                         controller={true}
+                        initialViewState={viewState}
+                        viewState={viewState}
+                        // TODO: Fix the type error
+                        onViewStateChange={handleViewStateChange}
                     >
                         <Map
                             reuseMaps

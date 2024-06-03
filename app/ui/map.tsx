@@ -19,6 +19,7 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover"
 import Link from 'next/link';
+import { ScreenGridLayer } from '@deck.gl/aggregation-layers';
 
 export default function LocationAggregatorMap() {
 
@@ -41,17 +42,14 @@ export default function LocationAggregatorMap() {
     const filteredData = tempDataFromSideNav.filter(e => e['Mean Temperature'] !== null)
 
     const layers = toggleHeatSpotFromSideNav && filteredData ? [
-        new HeatmapLayer<InterpolatedTempRecord>({
-            id: 'temperature-change',
+        new ScreenGridLayer<InterpolatedTempRecord>({
+            id: 'heat-map-grid',
             data: filteredData,
-            aggregation: 'MEAN',
-            radiusPixels: 100,
-            opacity: 0.4,
-            getPosition: (d: InterpolatedTempRecord) => [d.lon, d.lat],
-            getWeight: (d: InterpolatedTempRecord) => d['Mean Temperature'],
-            // colorRange: [[239, 71, 111],[247, 140, 107],[255, 209, 102],[6, 214, 160],[17, 138, 178],[7, 59, 76]],
-            colorRange: [[63, 127, 255], [92, 156, 255], [121, 182, 255], [255, 0, 0], [176, 48, 96], [198, 40, 40]],
-            colorDomain: [0, 80],
+            opacity: 0.8,
+            getPosition: d => [d.lon, d.lat],
+            getWeight: d => d['Mean Temperature'],
+            cellSizePixels: 10,
+            aggregation: "MEAN",
         })
     ] : [];
 
