@@ -35,4 +35,9 @@ export type ImpactAssessment = {
     stormWaterRunOffReduction: number,
     averageTemperatureReduction: number
 }
+
+export type TreePosition = {
+    lat: number,
+    lon: number
+}
   

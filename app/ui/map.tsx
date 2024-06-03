@@ -44,14 +44,14 @@ export default function LocationAggregatorMap() {
         new HeatmapLayer<InterpolatedTempRecord>({
             id: 'temperature-change',
             data: filteredData,
-            aggregation: 'SUM',
-            radiusPixels: 30,
+            aggregation: 'MEAN',
+            radiusPixels: 100,
             opacity: 0.4,
             getPosition: (d: InterpolatedTempRecord) => [d.lon, d.lat],
             getWeight: (d: InterpolatedTempRecord) => d['Mean Temperature'],
             // colorRange: [[239, 71, 111],[247, 140, 107],[255, 209, 102],[6, 214, 160],[17, 138, 178],[7, 59, 76]],
             colorRange: [[63, 127, 255], [92, 156, 255], [121, 182, 255], [255, 0, 0], [176, 48, 96], [198, 40, 40]],
-            colorDomain: [0, 100],
+            colorDomain: [0, 80],
         })
     ] : [];
 
