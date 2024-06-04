@@ -14,12 +14,40 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover"
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
 import Link from 'next/link';
 import { ScreenGridLayer } from '@deck.gl/aggregation-layers';
+import { listOfTreeSpecies, treeConditions } from '@/constants/config';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { plantTreeFormSchema } from '@/app/lib/validations';
+import {
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form"
+import { Divide } from 'lucide-react';
 
 export default function LocationAggregatorMap() {
 
@@ -38,6 +66,17 @@ export default function LocationAggregatorMap() {
     const handleHeatSpotToggleFromSideNav = (checked: boolean) => {
         setHeatSpotFromSideNav(checked);
     }
+
+    const plantTreeForm = useForm<z.infer<typeof plantTreeFormSchema>>({
+        resolver: zodResolver(plantTreeFormSchema),
+        defaultValues: {
+            numberOfTrees: 100,
+            trunkSize: 10,
+            treeCondition: treeConditions[0],
+            treeSpecies: listOfTreeSpecies[0],
+        },
+    })
+
     // Filter out records with null meanTemperature values
     const filteredData = tempDataFromSideNav.filter(e => e['Mean Temperature'] !== null)
 
@@ -76,38 +115,42 @@ export default function LocationAggregatorMap() {
             });
         }
     };
-    const handleSubmitTrees = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-
-        // Access form data using event.currentTarget
-        const formData = new FormData(event.currentTarget);
-        const trees = Number(formData.get('trees'));
-
-        // Update total trees planted
-        const newTotalTreesPlanted = totalTreesPlanted + trees;
-        setTotalTreesPlanted(newTotalTreesPlanted);
-
-        try {
-            const response = await fetch('http://127.0.0.1:8000/api/impact_assessment', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ number_of_trees: newTotalTreesPlanted })
-            })
-            if (!response.ok) {
-                throw new Error('Cannot fetch the data');
-            }
-            const data: ImpactAssessment = await response.json();
-            console.log('Response from the backend API: ', data);
-
-            setImpactAssessment(data);
-            setPopoverOpen(null);
-
-        } catch (error) {
-            console.error('There was a problem with the fetch operation:', error);
-        }
+    function onSubmit(values: z.infer<typeof plantTreeFormSchema>) {
+        console.log(values);
     }
+    // const handleSubmitTrees = async (event: React.FormEvent<HTMLFormElement>) => {
+    //     event.preventDefault();
+
+    //     // Access form data using event.currentTarget
+    //     const formData = new FormData(event.currentTarget);
+    //     console.log(formData);
+    //     const trees = Number(formData.get('trees'));
+
+    //     // Update total trees planted
+    //     const newTotalTreesPlanted = totalTreesPlanted + trees;
+    //     setTotalTreesPlanted(newTotalTreesPlanted);
+
+    //     try {
+    //         const response = await fetch('http://127.0.0.1:8000/api/impact_assessment', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json'
+    //             },
+    //             body: JSON.stringify({ number_of_trees: newTotalTreesPlanted })
+    //         })
+    //         if (!response.ok) {
+    //             throw new Error('Cannot fetch the data');
+    //         }
+    //         const data: ImpactAssessment = await response.json();
+    //         console.log('Response from the backend API: ', data);
+
+    //         setImpactAssessment(data);
+    //         setPopoverOpen(null);
+
+    //     } catch (error) {
+    //         console.error('There was a problem with the fetch operation:', error);
+    //     }
+    // }
 
     return (
         <>
@@ -123,38 +166,110 @@ export default function LocationAggregatorMap() {
                         reuseMaps
                         mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
                         // mapStyle="https://www.onemap.gov.sg/maps/json/raster/mbstyle/Night.json"
-                        mapStyle="mapbox://styles/mapbox/outdoors-v12"
+                        mapStyle="mapbox://styles/mapbox/light-v11"
                     // mapStyle="mapbox://styles/mapbox/dark-v11"
                     >
                         <NavigationControl
                             position='bottom-left' />
                         {markers.map((marker, index) => (
                             <Marker key={index} longitude={marker[0]} latitude={marker[1]} anchor="bottom">
-                                <Popover open={lastAddedMarkerIndex === index && popoverOpen === index}>
-                                    <PopoverTrigger asChild>
-                                        <Image src="./mingcute_tree-2-fill.svg" width={40} height={40} alt="marker" />
-                                    </PopoverTrigger>
-                                    <PopoverContent className='w-80'>
-                                        <form onSubmit={handleSubmitTrees}>
-                                            <div className="grid gap-4 p-2">
-                                                <h2 className="font-bold text-lg leading-none text-teal-500">Plant Trees</h2>
-                                                <div className="grid gap-2">
-                                                    <div className="grid grid-cols-3 items-center gap-4">
-                                                        <Label htmlFor="width" className="leading-5">Number of Trees: </Label>
-                                                        <Input
-                                                            type='number'
-                                                            id="trees"
-                                                            name='trees'
-                                                            defaultValue={100}
-                                                            className="col-span-2 h-8"
-                                                        />
-                                                    </div>
-                                                    <Button type='submit' className='bg-teal-500 mt-3'>Submit</Button>
+                                <Dialog open={lastAddedMarkerIndex === index && popoverOpen === index}>
+                                    <DialogTrigger asChild>
+                                        <Image src="./mingcute_tree-2-fill.svg" width={40} height={40} alt='marker' />
+                                    </DialogTrigger>
+                                    <DialogContent className="sm:max-w-[450px]">
+                                        <DialogHeader>
+                                            <DialogTitle className='text-teal-500 text-lg'>Plant Trees</DialogTitle>
+                                            <DialogDescription>
+                                                {`Let's improve our environment!`}
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                        <Form {...plantTreeForm}>
+                                            <form onSubmit={plantTreeForm.handleSubmit(onSubmit)}>
+                                                <div className="grid gap-5 py-4">
+                                                    <FormField
+                                                        control={plantTreeForm.control}
+                                                        name="numberOfTrees"
+                                                        render={({ field }) => (
+                                                            // Number of Trees Input
+                                                            <FormItem className='grid grid-cols-4 items-center gap-4'>
+                                                                <FormLabel className='text-right leading-4'>Number of Trees</FormLabel>
+                                                                <FormControl>
+                                                                    <Input type='number' placeholder={"Enter the number of trees (e.g. 5)"} {...field} className='col-span-3' onChange={event => field.onChange(+event.target.value)} />
+                                                                </FormControl>
+                                                            </FormItem>
+                                                        )}
+                                                    />
+                                                    <FormField
+                                                        control={plantTreeForm.control}
+                                                        name="trunkSize"
+                                                        render={({ field }) => (
+                                                            <FormItem className='grid grid-cols-4 items-center gap-4'>
+                                                                <FormLabel className='text-right leading-4'>Trunk Size (cm)</FormLabel>
+                                                                <FormControl>
+                                                                    <Input type='number' placeholder={"Enter the size of trunk (e.g. 5)"} {...field} className='col-span-3' onChange={event => field.onChange(+event.target.value)} />
+                                                                </FormControl>
+                                                            </FormItem>
+                                                        )}
+                                                    />
+                                                    <FormField
+                                                        control={plantTreeForm.control}
+                                                        name="treeSpecies"
+                                                        render = {({ field }) => (
+                                                            <FormItem className='grid grid-cols-4 items-center gap-4'>
+                                                                <FormLabel className='text-right leading-4'>Tree Species</FormLabel>
+                                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                                    <FormControl className="col-span-3">
+                                                                        <SelectTrigger>
+                                                                            <SelectValue placeholder={listOfTreeSpecies[0]} />
+                                                                        </SelectTrigger>
+                                                                    </FormControl>
+                                                                    <SelectContent>
+                                                                        {
+                                                                            listOfTreeSpecies.map((species, id) => {
+                                                                                return (
+                                                                                    <SelectItem value={species} key={id}>{species}</SelectItem>
+                                                                                )
+                                                                            })
+                                                                        }
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </FormItem>
+                                                        )}
+                                                    />
+                                                    <FormField
+                                                        control={plantTreeForm.control}
+                                                        name="treeCondition"
+                                                        render = {({ field }) => (
+                                                            <FormItem className='grid grid-cols-4 items-center gap-4'>
+                                                                <FormLabel className='text-right leading-4'>Tree Conditions</FormLabel>
+                                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                                    <FormControl className="col-span-3">
+                                                                        <SelectTrigger>
+                                                                            <SelectValue placeholder={treeConditions[0]} />
+                                                                        </SelectTrigger>
+                                                                    </FormControl>
+                                                                    <SelectContent>
+                                                                        {
+                                                                            treeConditions.map((condition, id) => {
+                                                                                return (
+                                                                                    <SelectItem value={condition} key={id}>{condition}</SelectItem>
+                                                                                )
+                                                                            })
+                                                                        }
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </FormItem>
+                                                        )}
+                                                    />
                                                 </div>
-                                            </div>
-                                        </form>
-                                    </PopoverContent>
-                                </Popover>
+                                                <DialogFooter>
+                                                    <Button type="submit" className="bg-teal-500 mt-3">Save changes</Button>
+                                                </DialogFooter>
+                                            </form>
+                                        </Form>
+                                    </DialogContent>
+                                </Dialog>
 
                             </Marker>
                         ))}

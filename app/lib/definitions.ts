@@ -44,11 +44,3 @@ export type TreePosition = {
 export type TransitionProps = {
     
 }
-
-// export const heatMapColorRange: Array<string> = ["#3F7FFF", "#5C9CFF", "#79B6FF", "#FF0000", "#B03060", "#C62828"]
-
-export const heatMapColorRange: Array<string> = ["#ffffb2", "#fed976", "#feb24c", "#fd8d3c", "#f03b20", "#bd0026"]
-
-export const heatMapNumberLegend: Array<number> = [19,38]
-
-export const heatMapLegendTitle: string = "Temperature Legend (°C)"

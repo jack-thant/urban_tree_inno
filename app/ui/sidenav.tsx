@@ -13,7 +13,8 @@ import { years, months } from "@/constants/yearMonth";
 import { useEffect, useRef, useState } from "react";
 import { Switch } from "@/components/ui/switch"
 import Legend from "./legend";
-import { heatMapColorRange, heatMapLegendTitle, heatMapNumberLegend, ImpactAssessment, InterpolatedTempRecord } from "../lib/definitions";
+import { ImpactAssessment, InterpolatedTempRecord } from "../lib/definitions";
+import { heatMapColorRange, heatMapLegendTitle } from "@/constants/config";
 
 interface SideNavProps {
   sendDataToParent: (tempData: InterpolatedTempRecord[]) => void;
@@ -178,7 +179,7 @@ export default function SideNav({ sendDataToParent, heatSpotChecked, impactStats
                 <StatsListItem image_src="tree-notfill" title="Total Number of Trees" statistics={impactStats.totalNumberOfTrees[0]} arrow_up_down="arrow_up_green" growth_percentage={Number(impactStats.totalNumberOfTrees[1].toFixed(2))} />
                 <StatsListItem image_src="bolt" title="Annual Energy Saved" statistics={impactStats.annualEnergySaved} arrow_up_down="arrow_up_green" growth_percentage={5} />
                 <StatsListItem image_src="cloud" title="Annual Carbon Sequestration (kg CO2)" statistics={impactStats.annualCarbonSequestration} arrow_up_down="arrow_down_green" growth_percentage={1} />
-                <StatsListItem image_src="air" title="Air Pollutants Removed (kg/year)" statistics={Number(impactStats.airPollutantsRemoved.toFixed(2))} arrow_up_down="arrow_down_green" growth_percentage={1} />
+                <StatsListItem image_src="air" title="Air Pollutants Removed (kg/year)" statistics={impactStats.airPollutantsRemoved} arrow_up_down="arrow_down_green" growth_percentage={1} />
                 <StatsListItem image_src="storm-water" title="Stormwater Runoff Reduction (m3/year)" statistics={impactStats.stormWaterRunOffReduction} arrow_up_down="arrow_down_green" growth_percentage={5} />
                 <StatsListItem image_src="temperature" title="Average Temperature Reduction (C)" statistics={impactStats.averageTemperatureReduction} arrow_up_down="arrow_down_green" growth_percentage={1} />
               </div>

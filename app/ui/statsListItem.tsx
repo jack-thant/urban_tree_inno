@@ -30,7 +30,7 @@ export default function StatsListItem({
           <p className="font-semibold text-sm ml-3 text-pretty break-words">{title}</p>
         </div>
         <div className="flex flex-row">
-          <p className="font-bold text-sm ml-3">{statistics}</p>
+          <p className="font-bold text-sm ml-3">{statistics.toFixed(2)}</p>
           <Image
             src={`./impact_assess/${arrow_up_down}.svg`}
             width={20}

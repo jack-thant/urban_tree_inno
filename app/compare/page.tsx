@@ -4,7 +4,7 @@ import Map from 'react-map-gl';
 import { DeckGL } from '@deck.gl/react';
 import "mapbox-gl/dist/mapbox-gl.css";
 import { INITIAL_VIEW_STATE, lightingEffect } from "@/app/lib/mapconfig";
-import { heatMapColorRange, heatMapLegendTitle, heatMapNumberLegend, INITIAL_VIEW_STATE_FRAME, InterpolatedTempRecord, TransitionProps, TreePosition } from '../lib/definitions';
+import { INITIAL_VIEW_STATE_FRAME, InterpolatedTempRecord, TransitionProps, TreePosition } from '../lib/definitions';
 import { useEffect, useState } from 'react';
 import { ScatterplotLayer } from '@deck.gl/layers';
 import { ScreenGridLayer } from '@deck.gl/aggregation-layers';
@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch"
 import Image from "next/image";
 import Legend from '../ui/legend';
 import { MapViewState, ViewStateChangeParameters } from '@deck.gl/core';
+import { heatMapColorRange, heatMapLegendTitle, heatMapNumberLegend } from '@/constants/config';
 
 export default function Compare() {
 
@@ -100,7 +101,6 @@ export default function Compare() {
                     <DeckGL
                         effects={[lightingEffect]}
                         viewState={viewState}
-                        // TODO: Fix the type error
                         onViewStateChange={handleViewStateChange}
                         controller={true}
                         width="50%"
@@ -109,7 +109,7 @@ export default function Compare() {
                         <Map
                             reuseMaps
                             mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
-                            mapStyle="mapbox://styles/mapbox/outdoors-v12"
+                            mapStyle="mapbox://styles/mapbox/light-v11"
                         />
 
                     </DeckGL>
@@ -118,13 +118,12 @@ export default function Compare() {
                     <DeckGL
                         controller={true}
                         viewState={viewState}
-                        // TODO: Fix the type error
                         onViewStateChange={handleViewStateChange}
                     >
                         <Map
                             reuseMaps
                             mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
-                            mapStyle="mapbox://styles/mapbox/outdoors-v12"
+                            mapStyle="mapbox://styles/mapbox/light-v11"
                         />
                         {/* Card to toggle */}
                         <div className="flex flex-col h-screen float-right px-3 py-4 md:px-2">
