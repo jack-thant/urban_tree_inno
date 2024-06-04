@@ -41,7 +41,9 @@ export default function SideNav({ sendDataToParent, heatSpotChecked, impactStats
   }
 
   const handleHeatSpotCheckedChange = (checked: boolean) => {
-    setHeatSpot(checked);
+    if (year && month) {
+      setHeatSpot(checked);
+    }
   }
   // for testing
   // console.log(`Year: ${year}, Month: ${month}`)
@@ -118,7 +120,7 @@ export default function SideNav({ sendDataToParent, heatSpotChecked, impactStats
                 <p className="font-semibold text-sm ml-3">Heat Spot Data</p>
               </div>
 
-              <Switch id="heat_spot" onCheckedChange={handleHeatSpotCheckedChange} />
+              {year && month && <Switch id="heat_spot" onCheckedChange={handleHeatSpotCheckedChange} />}
             </div>
           </div>
           {/* Population Density Area */}
@@ -136,9 +138,7 @@ export default function SideNav({ sendDataToParent, heatSpotChecked, impactStats
                 </p>
               </div>
 
-              <label htmlFor="one" className="mt-1">
-                <input id="one" type="checkbox" />
-              </label>
+              { year && month && <Switch id='population-density' />}
             </div>
           </div>
           {/* High Value Estate */}
@@ -156,9 +156,7 @@ export default function SideNav({ sendDataToParent, heatSpotChecked, impactStats
                 </p>
               </div>
 
-              <label htmlFor="one" className="mt-1">
-                <input id="one" type="checkbox" />
-              </label>
+              { year && month && <Switch id='high-value-estate' />}
             </div>
           </div>
         </div>

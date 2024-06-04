@@ -56,14 +56,14 @@ export default function LocationAggregatorMap() {
     // Function to handle clicks on the map
     const handleMapClick = (info: PickingInfo<MarkerPosition>) => {
 
-        console.log(info);
+        console.log(info.coordinate);
         // Get the position from the click event
         const position: number[] | undefined = info.coordinate;
 
         // Check if the position is valid and has exactly two elements (longitude and latitude)
         if (position && position.length === 2) {
             // Disable the handleEvent if the coordinates exceed the specified limits
-            if (position[0] > 103.9 && position[1] > 1.461) {
+            if (position[0] > 103.9 && position[1] > 1.42) {
                 return;
             }
 
