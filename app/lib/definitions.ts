@@ -9,10 +9,10 @@ export type INITIAL_VIEW_STATE_FRAME = {
     longitude: number, // Center longitude
     latitude: number, // Center latitude
     zoom: number, // Initial zoom level
-    minZoom?: number, // Minimum zoom level
+    minZoom?: number | undefined, // Minimum zoom level
     maxZoom?: number, // Maximum zoom level
-    pitch: number, // Camera pitch (tilt) in degrees
-    bearing: number, // Camera bearing (rotation) in degrees
+    pitch?: number, // Camera pitch (tilt) in degrees
+    bearing?: number, // Camera bearing (rotation) in degrees
 }
 
 export interface InterpolatedTempRecord {
@@ -39,6 +39,10 @@ export type ImpactAssessment = {
 export type TreePosition = {
     lat: number,
     lon: number
+}
+
+export type TransitionProps = {
+    
 }
 
 // export const heatMapColorRange: Array<string> = ["#3F7FFF", "#5C9CFF", "#79B6FF", "#FF0000", "#B03060", "#C62828"]

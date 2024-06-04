@@ -4,7 +4,7 @@ import Map from 'react-map-gl';
 import { DeckGL } from '@deck.gl/react';
 import "mapbox-gl/dist/mapbox-gl.css";
 import { INITIAL_VIEW_STATE, lightingEffect } from "@/app/lib/mapconfig";
-import { heatMapColorRange, heatMapLegendTitle, heatMapNumberLegend, INITIAL_VIEW_STATE_FRAME, InterpolatedTempRecord, TreePosition, ViewState } from '../lib/definitions';
+import { heatMapColorRange, heatMapLegendTitle, heatMapNumberLegend, INITIAL_VIEW_STATE_FRAME, InterpolatedTempRecord, TransitionProps, TreePosition } from '../lib/definitions';
 import { useEffect, useState } from 'react';
 import { ScatterplotLayer } from '@deck.gl/layers';
 import { ScreenGridLayer } from '@deck.gl/aggregation-layers';
@@ -19,7 +19,7 @@ export default function Compare() {
     const [testData, setTestData] = useState(null);
     const [toggleHeatSpot, setHeatSpot] = useState<boolean>(false);
     const [toggleTree, setTreeToggle] = useState<boolean>(false);
-    const [viewState, setViewState] = useState<INITIAL_VIEW_STATE_FRAME>(INITIAL_VIEW_STATE);
+    const [viewState, setViewState] = useState<MapViewState>(INITIAL_VIEW_STATE);
 
     const handleHeatSpotCheckedChange = (checked: boolean) => {
         setHeatSpot(checked);
@@ -29,10 +29,11 @@ export default function Compare() {
         setTreeToggle(checked);
     }
 
-    const handleViewStateChange = (params: ViewStateChangeParameters<MapViewState>) => {
-        // TODO: Fix the type error
-        setViewState(params.viewState);
-    };
+    const handleViewStateChange = <ViewStateT extends TransitionProps | MapViewState>(
+        params: ViewStateChangeParameters<ViewStateT>
+    ): void | ViewStateT | null => {
+        setViewState(params.viewState as MapViewState);
+    }
 
     useEffect(() => {
         const fetchTreeData = async () => {
@@ -98,7 +99,6 @@ export default function Compare() {
                 <div className="flex-1">
                     <DeckGL
                         effects={[lightingEffect]}
-                        initialViewState={viewState}
                         viewState={viewState}
                         // TODO: Fix the type error
                         onViewStateChange={handleViewStateChange}
@@ -117,7 +117,6 @@ export default function Compare() {
                 <div style={{ height: '100vh', width: '50vw', position: 'relative' }}>
                     <DeckGL
                         controller={true}
-                        initialViewState={viewState}
                         viewState={viewState}
                         // TODO: Fix the type error
                         onViewStateChange={handleViewStateChange}

@@ -1,8 +1,8 @@
 import { AmbientLight, PointLight, LightingEffect } from "@deck.gl/core";
 import { INITIAL_VIEW_STATE_FRAME, Material } from "./definitions";
 
-const sg_latitude: number = 1.3521;
-const sg_longitude: number = 103.8198;
+export const sg_latitude: number = 1.3521;
+export const sg_longitude: number = 103.8198;
 
 // Define the AmbientLight with white color and full intensity
 export const ambientLight = new AmbientLight({
