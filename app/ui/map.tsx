@@ -55,7 +55,6 @@ export default function LocationAggregatorMap() {
     const [markers, setMarkers] = useState<number[][]>([]);
     const [lastAddedMarkerIndex, setLastAddedMarkerIndex] = useState<number | null>(null);
     const [impactAssessment, setImpactAssessment] = useState<ImpactAssessment>();
-    const [totalTreesPlanted, setTotalTreesPlanted] = useState<number>(0);
     const [coordinates, setCoordinates] = useState<number[]>();
     const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -103,7 +102,7 @@ export default function LocationAggregatorMap() {
         // Check if the position is valid and has exactly two elements (longitude and latitude)
         if (position && position.length === 2) {
             // Disable the handleEvent if the coordinates exceed the specified limits
-            if (position[0] > 103.9 && position[1] > 1.3) {
+            if (position[0] > 103.9 && position[1] > 1.36) {
                 return;
             }
 
@@ -125,9 +124,6 @@ export default function LocationAggregatorMap() {
 
         setDialogOpen(false);
 
-        const newTotalTreesPlanted = totalTreesPlanted + values.numberOfTrees;
-        setTotalTreesPlanted(newTotalTreesPlanted);
-
         try {
             const response = await fetch('http://127.0.0.1:8000/api/impact_assessment', {
                 method: 'POST',
@@ -135,15 +131,14 @@ export default function LocationAggregatorMap() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    latitude: coordinates[1],
-                    longitude: coordinates[0],
+                    lat: coordinates[1],
+                    lon: coordinates[0],
                     numberOfTrees: values.numberOfTrees,
                     treeCondition: values.treeCondition,
                     treeSpecies: values.treeSpecies,
                     trunkSize: values.trunkSize
                 })
             })
-            console.log(response);
             const data: ImpactAssessment = await response.json();
             console.log('Response from the backend API: ', data);
             setImpactAssessment(data);
