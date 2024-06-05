@@ -44,3 +44,16 @@ export type TreePosition = {
 export type TransitionProps = {
     
 }
+
+export interface DataPoint {
+    lon: number;
+    lat: number;
+    UHI_Intensity_before: number;
+    UHI_Intensity: number;
+}
+
+export interface UHIData {
+    min_uhii: number;
+    max_uhii: number;
+    data: DataPoint[];
+}

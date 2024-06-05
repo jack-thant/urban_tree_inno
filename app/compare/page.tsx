@@ -4,7 +4,7 @@ import Map from 'react-map-gl';
 import { DeckGL } from '@deck.gl/react';
 import "mapbox-gl/dist/mapbox-gl.css";
 import { INITIAL_VIEW_STATE, lightingEffect } from "@/app/lib/mapconfig";
-import { INITIAL_VIEW_STATE_FRAME, InterpolatedTempRecord, TransitionProps, TreePosition } from '../lib/definitions';
+import { DataPoint, INITIAL_VIEW_STATE_FRAME, InterpolatedTempRecord, TransitionProps, TreePosition, UHIData } from '../lib/definitions';
 import { useEffect, useState } from 'react';
 import { ScatterplotLayer } from '@deck.gl/layers';
 import { ScreenGridLayer } from '@deck.gl/aggregation-layers';
@@ -17,7 +17,7 @@ import { heatMapColorRange, heatMapLegendTitle, heatMapNumberLegend } from '@/co
 export default function Compare() {
 
     const [treeData, setTreeData] = useState<Array<TreePosition>>([]);
-    const [testData, setTestData] = useState(null);
+    const [UHIData, setUHIData] = useState<UHIData>();
     const [toggleHeatSpot, setHeatSpot] = useState<boolean>(false);
     const [toggleTree, setTreeToggle] = useState<boolean>(false);
     const [viewState, setViewState] = useState<MapViewState>(INITIAL_VIEW_STATE);
@@ -52,9 +52,9 @@ export default function Compare() {
     useEffect(() => {
         const fetchTempData = async () => {
             try {
-                const res = await fetch('/mean_temperature_202403.json');
+                const res = await fetch('http://127.0.0.1:8000/uhi_intensity_before_and_after');
                 const data = await res.json();
-                setTestData(data)
+                setUHIData(data)
             } catch (error) {
                 console.error("Error fetching data", error);
             }
@@ -63,8 +63,9 @@ export default function Compare() {
     }, []);
 
     const layers = [];
+    const secondMapLayers = [];
 
-    if (treeData && testData) {
+    if (treeData && UHIData) {
         if (toggleTree) {
             layers.push(
                 new ScatterplotLayer<TreePosition>({
@@ -80,12 +81,28 @@ export default function Compare() {
         }
         if (toggleHeatSpot) {
             layers.push(
-                new ScreenGridLayer<InterpolatedTempRecord>({
+                new ScreenGridLayer<DataPoint>({
                     id: 'heat-map-grid',
-                    data: testData,
+                    data: UHIData.data,
                     opacity: 0.8,
-                    getPosition: d => [d.lon, d.lat],
-                    getWeight: d => d['Mean Temperature'],
+                    getPosition: (d: DataPoint) => [d.lon, d.lat],
+                    getWeight: (d: DataPoint) => d.UHI_Intensity_before,
+                    cellSizePixels: 15,
+                    aggregation: "MEAN",
+                })
+            )
+        }
+    }
+
+    if (UHIData) {
+        if (toggleHeatSpot) {
+            secondMapLayers.push(
+                new ScreenGridLayer<DataPoint>({
+                    id: 'heat-map-grid',
+                    data: UHIData.data,
+                    opacity: 0.8,
+                    getPosition: (d: DataPoint) => [d.lon, d.lat],
+                    getWeight: (d: DataPoint) => d.UHI_Intensity,
                     cellSizePixels: 15,
                     aggregation: "MEAN",
                 })
@@ -119,6 +136,7 @@ export default function Compare() {
                         controller={true}
                         viewState={viewState}
                         onViewStateChange={handleViewStateChange}
+                        layers={[secondMapLayers]}
                     >
                         <Map
                             reuseMaps
