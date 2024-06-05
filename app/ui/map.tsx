@@ -16,14 +16,13 @@ import { Label } from "@/components/ui/label"
 import {
     Select,
     SelectContent,
-    SelectGroup,
     SelectItem,
-    SelectLabel,
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
 import {
     Dialog,
+    DialogClose,
     DialogContent,
     DialogDescription,
     DialogFooter,
@@ -56,8 +55,9 @@ export default function LocationAggregatorMap() {
     const [markers, setMarkers] = useState<number[][]>([]);
     const [lastAddedMarkerIndex, setLastAddedMarkerIndex] = useState<number | null>(null);
     const [impactAssessment, setImpactAssessment] = useState<ImpactAssessment>();
-    const [popoverOpen, setPopoverOpen] = useState<number | null>(null);
     const [totalTreesPlanted, setTotalTreesPlanted] = useState<number>(0);
+    const [coordinates, setCoordinates] = useState<number[]>();
+    const [dialogOpen, setDialogOpen] = useState(false);
 
     const handleTempDataFromSideNav = (data: InterpolatedTempRecord[]) => {
         setTempDataFromSideNav(data);
@@ -96,13 +96,14 @@ export default function LocationAggregatorMap() {
     const handleMapClick = (info: PickingInfo<MarkerPosition>) => {
 
         console.log(info.coordinate);
+        setCoordinates(info.coordinate);
         // Get the position from the click event
         const position: number[] | undefined = info.coordinate;
 
         // Check if the position is valid and has exactly two elements (longitude and latitude)
         if (position && position.length === 2) {
             // Disable the handleEvent if the coordinates exceed the specified limits
-            if (position[0] > 103.9 && position[1] > 1.42) {
+            if (position[0] > 103.9 && position[1] > 1.3) {
                 return;
             }
 
@@ -110,47 +111,47 @@ export default function LocationAggregatorMap() {
             setMarkers((prevMarkers) => {
                 const newMarkers = [...prevMarkers, position];
                 setLastAddedMarkerIndex(newMarkers.length - 1);
-                setPopoverOpen(newMarkers.length - 1);
+                setDialogOpen(true);
                 return newMarkers;
             });
         }
     };
-    function onSubmit(values: z.infer<typeof plantTreeFormSchema>) {
-        console.log(values);
+    async function onSubmit(values: z.infer<typeof plantTreeFormSchema>) {
+
+        if (!coordinates) {
+            console.error("Coordinates are undefined");
+            return;
+        }
+
+        setDialogOpen(false);
+
+        const newTotalTreesPlanted = totalTreesPlanted + values.numberOfTrees;
+        setTotalTreesPlanted(newTotalTreesPlanted);
+
+        try {
+            const response = await fetch('http://127.0.0.1:8000/api/impact_assessment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    latitude: coordinates[1],
+                    longitude: coordinates[0],
+                    numberOfTrees: values.numberOfTrees,
+                    treeCondition: values.treeCondition,
+                    treeSpecies: values.treeSpecies,
+                    trunkSize: values.trunkSize
+                })
+            })
+            console.log(response);
+            const data: ImpactAssessment = await response.json();
+            console.log('Response from the backend API: ', data);
+            setImpactAssessment(data);
+
+        } catch (error) {
+            console.error('There was a problem with the fetch operation:', error);
+        }
     }
-    // const handleSubmitTrees = async (event: React.FormEvent<HTMLFormElement>) => {
-    //     event.preventDefault();
-
-    //     // Access form data using event.currentTarget
-    //     const formData = new FormData(event.currentTarget);
-    //     console.log(formData);
-    //     const trees = Number(formData.get('trees'));
-
-    //     // Update total trees planted
-    //     const newTotalTreesPlanted = totalTreesPlanted + trees;
-    //     setTotalTreesPlanted(newTotalTreesPlanted);
-
-    //     try {
-    //         const response = await fetch('http://127.0.0.1:8000/api/impact_assessment', {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json'
-    //             },
-    //             body: JSON.stringify({ number_of_trees: newTotalTreesPlanted })
-    //         })
-    //         if (!response.ok) {
-    //             throw new Error('Cannot fetch the data');
-    //         }
-    //         const data: ImpactAssessment = await response.json();
-    //         console.log('Response from the backend API: ', data);
-
-    //         setImpactAssessment(data);
-    //         setPopoverOpen(null);
-
-    //     } catch (error) {
-    //         console.error('There was a problem with the fetch operation:', error);
-    //     }
-    // }
 
     return (
         <>
@@ -173,7 +174,7 @@ export default function LocationAggregatorMap() {
                             position='bottom-left' />
                         {markers.map((marker, index) => (
                             <Marker key={index} longitude={marker[0]} latitude={marker[1]} anchor="bottom">
-                                <Dialog open={lastAddedMarkerIndex === index && popoverOpen === index}>
+                                <Dialog open={lastAddedMarkerIndex === index && dialogOpen} onOpenChange={setDialogOpen}>
                                     <DialogTrigger asChild>
                                         <Image src="./mingcute_tree-2-fill.svg" width={40} height={40} alt='marker' />
                                     </DialogTrigger>
@@ -215,7 +216,7 @@ export default function LocationAggregatorMap() {
                                                     <FormField
                                                         control={plantTreeForm.control}
                                                         name="treeSpecies"
-                                                        render = {({ field }) => (
+                                                        render={({ field }) => (
                                                             <FormItem className='grid grid-cols-4 items-center gap-4'>
                                                                 <FormLabel className='text-right leading-4'>Tree Species</FormLabel>
                                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -240,7 +241,7 @@ export default function LocationAggregatorMap() {
                                                     <FormField
                                                         control={plantTreeForm.control}
                                                         name="treeCondition"
-                                                        render = {({ field }) => (
+                                                        render={({ field }) => (
                                                             <FormItem className='grid grid-cols-4 items-center gap-4'>
                                                                 <FormLabel className='text-right leading-4'>Tree Conditions</FormLabel>
                                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -264,13 +265,14 @@ export default function LocationAggregatorMap() {
                                                     />
                                                 </div>
                                                 <DialogFooter>
-                                                    <Button type="submit" className="bg-teal-500 mt-3">Save changes</Button>
+                                                    <DialogClose asChild>
+                                                        <Button type="submit" className="bg-teal-500 mt-3">Save changes</Button>
+                                                    </DialogClose>
                                                 </DialogFooter>
                                             </form>
                                         </Form>
                                     </DialogContent>
                                 </Dialog>
-
                             </Marker>
                         ))}
                     </Map>
