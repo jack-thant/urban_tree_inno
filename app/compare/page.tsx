@@ -128,6 +128,13 @@ export default function Compare() {
                             mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
                             mapStyle="mapbox://styles/mapbox/light-v11"
                         />
+                        <div className="relative flex justify-start ml-4 py-4 h-screen">
+                            <div className="absolute text-white rounded-lg p-4 text-sm bg-black">
+                                <div className="mx-0 bg-black">
+                                    <h2 className='font-bold'>2024 (Current)</h2>
+                                </div>
+                            </div>
+                        </div>
 
                     </DeckGL>
                 </div>
@@ -144,7 +151,7 @@ export default function Compare() {
                             mapStyle="mapbox://styles/mapbox/light-v11"
                         />
                         {/* Card to toggle */}
-                        <div className="flex flex-col h-screen float-right px-3 py-4 md:px-2">
+                        <div className="flex flex-col float-right px-3 py-4 md:px-2">
                             <div className="bg-white min-w-[300px] rounded-lg text-blac px-6 py-4 mb-5">
                                 <h2 className='font-bold text-lg mb-4'>Layer Visibility Control</h2>
                                 <div className="flex flex-row justify-between gap-y-5 mt-4">
@@ -155,7 +162,7 @@ export default function Compare() {
                                             height={20}
                                             alt="Icon of Heat Spot Data"
                                         />
-                                        <p className="font-semibold text-sm ml-3">Heat Spot Data</p>
+                                        <p className="font-semibold text-sm ml-3">UHI Data</p>
                                     </div>
                                     <Switch id="heat_spot" onCheckedChange={handleHeatSpotCheckedChange} />
                                 </div>
@@ -174,11 +181,19 @@ export default function Compare() {
 
                             </div>
                             {
-                                toggleHeatSpot && (
-                                    <Legend colorRange={heatMapColorRange} numberLegend={heatMapNumberLegend} title={heatMapLegendTitle} />
+                                toggleHeatSpot && UHIData && (
+                                    <Legend colorRange={heatMapColorRange} numberLegend={[Number(UHIData.min_uhii.toFixed(2)), Number(UHIData.max_uhii.toFixed(2))]} title={"UHI Temperature Legend (°C)"} />
                                 )
                             }
+
                         </div>
+                        <div className="flex justify-start ml-4 py-4">
+                            <div className="p-4 rounded-lg bg-black text-white">
+                                <h2 className='text-center font-bold'>Simulation</h2>
+                            </div>
+
+                        </div>
+
                     </DeckGL>
                 </div>
 
