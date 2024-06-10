@@ -1,9 +1,11 @@
-import LocationAggregatorMap from "@/app/ui/map";
-import { promises as fs } from 'fs';
+import LocationAggregatorMap from "@/app/ui/map"
+import WelcomeModel from "./ui/WelcomeModel"
 
-export default async function HomePage() {
+export default function HomePage() {
+    
     return (
         <>
+           <WelcomeModel/>
             <div className="relative min-h-screen">
                 <LocationAggregatorMap />
             </div>

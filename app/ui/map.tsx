@@ -48,7 +48,6 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
-import { Divide } from 'lucide-react';
 import config from '@/lib/config';
 
 export default function LocationAggregatorMap() {
