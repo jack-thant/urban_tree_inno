@@ -15,6 +15,7 @@ import { Switch } from "@/components/ui/switch"
 import Legend from "./legend";
 import { ImpactAssessment, InterpolatedTempRecord } from "../lib/definitions";
 import { heatMapColorRange, heatMapLegendTitle } from "@/constants/config";
+import config from "@/lib/config";
 
 interface SideNavProps {
   sendDataToParent: (tempData: InterpolatedTempRecord[]) => void;
@@ -51,7 +52,7 @@ export default function SideNav({ sendDataToParent, heatSpotChecked, impactStats
   useEffect(() => {
     const fetchTemperatureData = async (yearMonth: string) => {
       try {
-        const res = await fetch(`http://127.0.0.1:8000/mean_temperature/${yearMonth}`)
+        const res = await fetch(`${config.apiUrl}/mean_temperature/${yearMonth}`)
         const data = await res.json();
         setMinTemperature(data.min_temp);
         setMaxTemperature(data.max_temp);

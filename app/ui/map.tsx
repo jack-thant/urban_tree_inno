@@ -47,6 +47,7 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { Divide } from 'lucide-react';
+import config from '@/lib/config';
 
 export default function LocationAggregatorMap() {
 
@@ -125,7 +126,7 @@ export default function LocationAggregatorMap() {
         setDialogOpen(false);
 
         try {
-            const response = await fetch('http://127.0.0.1:8000/api/impact_assessment', {
+            const response = await fetch(`${config.apiUrl}/api/impact_assessment`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

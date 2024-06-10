@@ -13,6 +13,7 @@ import Image from "next/image";
 import Legend from '../ui/legend';
 import { MapViewState, ViewStateChangeParameters } from '@deck.gl/core';
 import { heatMapColorRange, heatMapLegendTitle, heatMapNumberLegend } from '@/constants/config';
+import config from '@/lib/config';
 
 export default function Compare() {
 
@@ -39,7 +40,7 @@ export default function Compare() {
     useEffect(() => {
         const fetchTreeData = async () => {
             try {
-                const res = await fetch('http://127.0.0.1:8000/trees/202403');
+                const res = await fetch(`${config.apiUrl}/trees/202403`);
                 const data = await res.json();
                 setTreeData(data);
             } catch (error) {
@@ -52,7 +53,7 @@ export default function Compare() {
     useEffect(() => {
         const fetchTempData = async () => {
             try {
-                const res = await fetch('http://127.0.0.1:8000/uhi_intensity_before_and_after');
+                const res = await fetch(`${config.apiUrl}/uhi_intensity_before_and_after`);
                 const data = await res.json();
                 setUHIData(data)
             } catch (error) {
