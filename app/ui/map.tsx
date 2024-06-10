@@ -19,6 +19,8 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
+    SelectGroup,
+    SelectLabel
 } from "@/components/ui/select"
 import {
     Dialog,
@@ -58,6 +60,8 @@ export default function LocationAggregatorMap() {
     const [impactAssessment, setImpactAssessment] = useState<ImpactAssessment>();
     const [coordinates, setCoordinates] = useState<number[]>();
     const [dialogOpen, setDialogOpen] = useState(false);
+
+    const views: Array<string> = ['Island Urban View', 'District Urban View']
 
     const handleTempDataFromSideNav = (data: InterpolatedTempRecord[]) => {
         setTempDataFromSideNav(data);
@@ -103,7 +107,7 @@ export default function LocationAggregatorMap() {
         // Check if the position is valid and has exactly two elements (longitude and latitude)
         if (position && position.length === 2) {
             // Disable the handleEvent if the coordinates exceed the specified limits
-            if (position[0] > 103.9 && position[1] > 1.36) {
+            if (position[0] > 103.9 && position[1] > 1.36 || position[0] < 103.6 && position[1] < 1.51) {
                 return;
             }
 
@@ -273,7 +277,7 @@ export default function LocationAggregatorMap() {
                         ))}
                     </Map>
 
-                    <div className="absolute text-white min-h-[100px] top-10 left-10 rounded-lg p-4 text-sm bg-white">
+                    <div className="absolute text-white min-h-[100px] top-5 left-10 rounded-lg p-4 text-sm bg-white">
                         <div className="flex flex-row">
                             <Image
                                 src="./mingcute_tree-2-fill.svg"
@@ -286,17 +290,34 @@ export default function LocationAggregatorMap() {
                         </div>
 
                         <div className="flex flex-row gap-3">
-                            <button type="button" className="inline-flex justify-center gap-x-1.5 rounded-md bg-teal-500 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-teal-500 hover:bg-white hover:text-black" id="menu-button" aria-expanded="true" aria-haspopup="true">
-                                Island Urban View
-                                <svg className="-mr-1 h-5 w-5 text-white hover:text-black" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                    <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
-                                </svg>
-                            </button>
-                            <Button className='inline-flex bg-teal-500'>
+                            <Select>
+                                <SelectTrigger className="w-full bg-teal-500 text-white font-semibold focus:outline-gray-500">
+                                    <SelectValue placeholder="Island Urban View" defaultValue={views[0]} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                        {views.map((view, id) => (
+                                            <SelectItem value={view} key={id}>
+                                                {view}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                            <Button className='bg-teal-500'>
                                 <Link href='/compare'>Compare Simulation</Link>
                             </Button>
                         </div>
                     </div>
+                    {/* Only display before the user place the marker */}
+                    {
+                        markers.length <= 0 && (
+                            <div className="grid place-content-center w-full absolute top-5">
+                                <h1 className='bg-black text-white p-3 text-sm rounded-lg'>Click on the map to plant trees</h1>
+                            </div>
+                        )
+                    }
+
                     <SideNav sendDataToParent={handleTempDataFromSideNav} heatSpotChecked={handleHeatSpotToggleFromSideNav} impactStats={impactAssessment}></SideNav>
 
                 </DeckGL>

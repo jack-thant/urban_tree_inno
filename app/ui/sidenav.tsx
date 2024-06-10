@@ -25,8 +25,8 @@ interface SideNavProps {
 
 export default function SideNav({ sendDataToParent, heatSpotChecked, impactStats }: SideNavProps) {
 
-  const [year, setYear] = useState("");
-  const [month, setMonth] = useState("");
+  const [year, setYear] = useState(years[0]);
+  const [month, setMonth] = useState(months[2]);
   const [tempData, setTempData] = useState<InterpolatedTempRecord[]>([]);
   const [toggleHeatSpot, setHeatSpot] = useState<boolean>(false);
   const [minTemperature, setMinTemperature] = useState<number>(0);
@@ -76,13 +76,13 @@ export default function SideNav({ sendDataToParent, heatSpotChecked, impactStats
   heatSpotChecked(toggleHeatSpot)
 
   return (
-    <div className="flex flex-col h-screen backdrop-blur-md px-3 py-4 md:px-2 float-right">
+    <div className="flex flex-col h-screen backdrop-blur-md p-4 md:px-2 float-right border-l-4 border-white max-w-[25rem]">
       {/* Urban Key Data Point */}
       <div className="bg-white rounded-lg min-w-[300px] text-black mb-5">
         <div className="px-6 py-4">
           <div className="font-bold text-lg mb-4">Urban Key Data Point</div>
           <div className="flex flex-row gap-3">
-            <Select onValueChange={handleYearChange}>
+            <Select onValueChange={handleYearChange} defaultValue={year}>
               <SelectTrigger className="w-full bg-teal-500 text-white font-semibold focus:outline-gray-500">
                 <SelectValue placeholder="Years" />
               </SelectTrigger>
@@ -94,7 +94,7 @@ export default function SideNav({ sendDataToParent, heatSpotChecked, impactStats
                 }
               </SelectContent>
             </Select>
-            <Select onValueChange={handleMonthChange}>
+            <Select onValueChange={handleMonthChange} defaultValue={month}>
               <SelectTrigger className="w-full bg-teal-500 text-white font-semibold focus:outline-gray-500">
                 <SelectValue placeholder="Months" />
               </SelectTrigger>
@@ -163,12 +163,6 @@ export default function SideNav({ sendDataToParent, heatSpotChecked, impactStats
           </div>
         </div>
       </div>
-      {
-        toggleHeatSpot && (
-          <Legend colorRange={heatMapColorRange} numberLegend={[Number(minTemperature.toFixed(2)), Number(maxTemperature.toFixed(2))]} title={heatMapLegendTitle} />
-        )
-      }
-
       {/* Impact Assessment */}
       {impactStats && (
         <div className="bg-white rounded-lg text-black min-w-[300px] overflow-auto">
@@ -188,6 +182,11 @@ export default function SideNav({ sendDataToParent, heatSpotChecked, impactStats
           </div>
         </div>
       )}
+      {
+        toggleHeatSpot && (
+          <Legend colorRange={heatMapColorRange} numberLegend={[Number(minTemperature.toFixed(2)), Number(maxTemperature.toFixed(2))]} title={heatMapLegendTitle} />
+        )
+      }
 
     </div>
   );

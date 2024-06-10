@@ -6,7 +6,7 @@ interface LegendProps {
 
 export default function Legend({ colorRange, numberLegend, title }: LegendProps) {
     return (
-        <div className="bg-white rounded-lg w-full text-black mb-5 md:px-2">
+        <div className="bg-white rounded-lg w-full text-black mb-5 md:px-2 max-w-[25rem] mt-5">
             <div className="px-6 py-5">
                 <h1 className="font-bold text-md mb-4">{ title }</h1>
                 <div className="flex flex-row">
@@ -14,7 +14,7 @@ export default function Legend({ colorRange, numberLegend, title }: LegendProps)
                         <div
                             key={id}
                             style={{ backgroundColor: color }}
-                            className="w-[50px] h-[20px]"
+                            className="w-[60px] h-[20px]"
                         ></div>
                     ))}
                 </div>
