@@ -70,6 +70,22 @@ export default function LocationAggregatorMap() {
         setHeatSpotFromSideNav(checked);
     }
 
+    const minLat = 1.1890;
+    const maxLat = 1.47085;
+    const minLon = 103.6053;
+    const maxLon = 104.0723;
+
+    function isWithinSingaporeBounds(position: number[]) {
+        const lat = position[1]; // Assuming position is [longitude, latitude]
+        const lon = position[0];
+    
+        if (lon < minLon || lon > maxLon || lat < minLat || lat > maxLat) {
+            return false;
+        }
+    
+        return true;
+    }
+
     const plantTreeForm = useForm<z.infer<typeof plantTreeFormSchema>>({
         resolver: zodResolver(plantTreeFormSchema),
         defaultValues: {
@@ -106,7 +122,10 @@ export default function LocationAggregatorMap() {
         // Check if the position is valid and has exactly two elements (longitude and latitude)
         if (position && position.length === 2) {
             // Disable the handleEvent if the coordinates exceed the specified limits
-            if (position[0] > 103.9 && position[1] > 1.36 || position[0] < 103.6 && position[1] < 1.51) {
+            // if (position[0] > 103.9 && position[1] > 1.36 || position[0] < 103.6 && position[1] < 1.51) {
+            //     return;
+            // }
+            if (!isWithinSingaporeBounds(position)) {
                 return;
             }
 

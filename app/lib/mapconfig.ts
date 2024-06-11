@@ -49,8 +49,8 @@ export const INITIAL_VIEW_STATE: INITIAL_VIEW_STATE_FRAME = {
   pitch: 0, // Camera pitch (tilt) in degrees
   bearing: 0, // Camera bearing (rotation) in degrees
   maxBounds: [
-    [103.60534989999995, 1.189045699999978],
-    [104.08850940000002, 1.4708518]
+    [103.60534, 1.2371],
+    [104.0723, 1.4713]
   ]
 };
 
