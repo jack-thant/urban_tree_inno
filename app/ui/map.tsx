@@ -276,7 +276,7 @@ export default function LocationAggregatorMap() {
                         ))}
                     </Map>
 
-                    <div className="absolute text-white min-h-[100px] top-5 left-10 rounded-lg p-4 text-sm bg-white">
+                    <div className="absolute text-white min-h-[100px] z-2 top-5 left-10 rounded-lg p-4 text-sm bg-white">
                         <div className="flex flex-row">
                             <Image
                                 src="./mingcute_tree-2-fill.svg"

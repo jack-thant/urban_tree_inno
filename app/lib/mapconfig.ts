@@ -43,11 +43,15 @@ export const material: Material = {
 export const INITIAL_VIEW_STATE: INITIAL_VIEW_STATE_FRAME = {
   longitude: sg_longitude, // Center longitude
   latitude: sg_latitude, // Center latitude
-  zoom: 10, // Initial zoom level
-  minZoom: 10, // Minimum zoom level
+  zoom: 10.5, // Initial zoom level
+  minZoom: 10.5, // Minimum zoom level
   maxZoom: 12, // Maximum zoom level
   pitch: 0, // Camera pitch (tilt) in degrees
   bearing: 0, // Camera bearing (rotation) in degrees
+  maxBounds: [
+    [103.60534989999995, 1.189045699999978],
+    [104.08850940000002, 1.4708518]
+  ]
 };
 
 // Define the color range for the visual representation

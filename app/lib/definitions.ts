@@ -13,7 +13,13 @@ export type INITIAL_VIEW_STATE_FRAME = {
     maxZoom?: number, // Maximum zoom level
     pitch?: number, // Camera pitch (tilt) in degrees
     bearing?: number, // Camera bearing (rotation) in degrees
+    maxBounds: MaxBounds
 }
+
+type MaxBounds = [
+    [number, number],
+    [number, number]
+];
 
 export interface InterpolatedTempRecord {
     lat: number,
