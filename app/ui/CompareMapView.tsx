@@ -13,7 +13,6 @@ import Image from "next/image";
 import Legend from '../ui/legend';
 import { MapViewState, ViewStateChangeParameters } from '@deck.gl/core';
 import { heatMapColorRange } from '@/constants/config';
-import config from '@/lib/config';
 
 interface CompareMapViewProps {
     treeData: Array<TreePosition>,
