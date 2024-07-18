@@ -1,11 +1,11 @@
 "use client"
 
-import Map, { Marker, NavigationControl, useMap } from 'react-map-gl';
+import Map, { MapboxStyle, Marker, NavigationControl, useMap } from 'react-map-gl';
 import { DeckGL } from '@deck.gl/react';
 import "mapbox-gl/dist/mapbox-gl.css";
 import { lightingEffect, material, INITIAL_VIEW_STATE, colorRange } from "@/app/lib/mapconfig";
 import SideNav from './sidenav';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { HeatmapLayer } from '@deck.gl/aggregation-layers';
 import { ImpactAssessment, InterpolatedTempRecord, MarkerPosition } from '../lib/definitions';
 import Image from 'next/image';
@@ -49,6 +49,8 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import config from '@/lib/config';
+import SGMapStyle from '../lib/map-style';
+import type {MapStyle } from 'react-map-gl';
 
 export default function LocationAggregatorMap() {
 
@@ -60,7 +62,13 @@ export default function LocationAggregatorMap() {
     const [coordinates, setCoordinates] = useState<number[]>();
     const [dialogOpen, setDialogOpen] = useState(false);
 
-    const views: Array<string> = ['Island Urban View', 'District Urban View']
+    const views: Array<string> = ['Island Urban View', 'District Urban View'];
+
+    const [mapView, setMapView] = useState<string>(views[0]);
+
+    const handleViewChange = (view: string) => {
+        setMapView(view);
+    }
 
     const handleTempDataFromSideNav = (data: InterpolatedTempRecord[]) => {
         setTempDataFromSideNav(data);
@@ -78,11 +86,11 @@ export default function LocationAggregatorMap() {
     function isWithinSingaporeBounds(position: number[]) {
         const lat = position[1]; // Assuming position is [longitude, latitude]
         const lon = position[0];
-    
+
         if (lon < minLon || lon > maxLon || lat < minLat || lat > maxLat) {
             return false;
         }
-    
+
         return true;
     }
 
@@ -113,8 +121,6 @@ export default function LocationAggregatorMap() {
 
     // Function to handle clicks on the map
     const handleMapClick = (info: PickingInfo<MarkerPosition>) => {
-
-        console.log(info.coordinate);
         setCoordinates(info.coordinate);
         // Get the position from the click event
         const position: number[] | undefined = info.coordinate;
@@ -179,13 +185,15 @@ export default function LocationAggregatorMap() {
                     initialViewState={INITIAL_VIEW_STATE}
                     controller={true}
                     layers={layers}
-                    onClick={handleMapClick}
+                    // Disable the onClick when the view is District Urban View
+                    onClick={mapView == views[0] ? handleMapClick: null}
                 >
                     <Map
                         reuseMaps
                         mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
                         // mapStyle="https://www.onemap.gov.sg/maps/json/raster/mbstyle/Night.json"
-                        mapStyle="mapbox://styles/mapbox/light-v11"
+                        mapStyle={mapView == views[0] ? "mapbox://styles/mapbox/light-v11": SGMapStyle as MapStyle}
+                        interactiveLayerIds={['sg-districts-fill']}
                     // mapStyle="mapbox://styles/mapbox/dark-v11"
                     >
                         <NavigationControl
@@ -308,7 +316,7 @@ export default function LocationAggregatorMap() {
                         </div>
 
                         <div className="flex flex-row gap-3">
-                            <Select>
+                            <Select onValueChange={handleViewChange} defaultValue={mapView}>
                                 <SelectTrigger className="w-full bg-teal-500 text-white font-semibold focus:outline-gray-500">
                                     <SelectValue placeholder="Island Urban View" defaultValue={views[0]} />
                                 </SelectTrigger>
