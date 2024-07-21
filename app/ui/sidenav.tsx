@@ -76,7 +76,7 @@ export default function SideNav({ sendDataToParent, heatSpotChecked, impactStats
   heatSpotChecked(toggleHeatSpot)
 
   return (
-    <div className="flex flex-col h-screen backdrop-blur-md p-4 md:px-2 float-right border-l-4 border-white max-w-[25rem]">
+    <div className="flex flex-col h-screen backdrop-blur-md p-4 md:px-2 border-l-4 border-white max-w-[25rem] absolute top-0 right-0 z-10">
       {/* Urban Key Data Point */}
       <div className="bg-white rounded-lg min-w-[300px] text-black mb-5">
         <div className="px-6 py-4">

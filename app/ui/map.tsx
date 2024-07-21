@@ -1,11 +1,10 @@
 "use client"
 
-import Map, { Marker, NavigationControl, useMap } from 'react-map-gl';
-import { DeckGL } from '@deck.gl/react';
+import Map, { Marker, NavigationControl, useControl, useMap } from 'react-map-gl';
 import "mapbox-gl/dist/mapbox-gl.css";
 import { lightingEffect, INITIAL_VIEW_STATE } from "@/app/lib/mapconfig";
 import SideNav from './sidenav';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { ImpactAssessment, InterpolatedTempRecord, MarkerPosition } from '../lib/definitions';
 import Image from 'next/image';
 import { PickingInfo } from '@deck.gl/core';
@@ -45,17 +44,20 @@ import {
 } from "@/components/ui/form"
 import config from '@/lib/config';
 import SGMapStyle from '../lib/map-style';
-import type {MapStyle } from 'react-map-gl';
+import type { MapLayerMouseEvent, MapStyle } from 'react-map-gl';
+import { MapboxOverlay } from '@deck.gl/mapbox';
+import { DeckProps } from '@deck.gl/core';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 export default function LocationAggregatorMap() {
 
     const [tempDataFromSideNav, setTempDataFromSideNav] = useState<InterpolatedTempRecord[]>([]);
     const [toggleHeatSpotFromSideNav, setHeatSpotFromSideNav] = useState<boolean>();
-    const [markers, setMarkers] = useState<number[][]>([]);
+    const [markers, setMarkers] = useState<[number, number][]>([]);
     const [lastAddedMarkerIndex, setLastAddedMarkerIndex] = useState<number | null>(null);
     const [impactAssessment, setImpactAssessment] = useState<ImpactAssessment>();
-    const [coordinates, setCoordinates] = useState<number[]>();
-    const [dialogOpen, setDialogOpen] = useState(false);
+    const [coordinates, setCoordinates] = useState<[number, number]>();
+    const [dialogOpen, setDialogOpen] = useState<boolean>(false);
 
     const views: Array<string> = ['Island Urban View', 'District Urban View'];
 
@@ -71,6 +73,12 @@ export default function LocationAggregatorMap() {
 
     const handleHeatSpotToggleFromSideNav = (checked: boolean) => {
         setHeatSpotFromSideNav(checked);
+    }
+
+    function DeckGLOverlay(props: DeckProps) {
+        const overlay = useControl<MapboxOverlay>(() => new MapboxOverlay(props));
+        overlay.setProps(props);
+        return null;
     }
 
     const minLat = 1.1890;
@@ -114,30 +122,31 @@ export default function LocationAggregatorMap() {
         })
     ] : [];
 
-    // Function to handle clicks on the map
-    const handleMapClick = (info: PickingInfo<MarkerPosition>) => {
-        setCoordinates(info.coordinate);
-        // Get the position from the click event
-        const position: number[] | undefined = info.coordinate;
+    // Function to handle marker click on the map
+    const handleMapClick = (event: MapLayerMouseEvent) => {
+        // create an array to store the longitude and latitude array
+        const position: [number, number] = [event.lngLat.lng, event.lngLat.lat];
 
-        // Check if the position is valid and has exactly two elements (longitude and latitude)
-        if (position && position.length === 2) {
-            if (!isWithinSingaporeBounds(position)) {
-                return;
-            }
+        setCoordinates(position);
 
-            // Update the state to add the new marker position
-            setMarkers((prevMarkers) => {
-                const newMarkers = [...prevMarkers, position];
-                setLastAddedMarkerIndex(newMarkers.length - 1);
-                setDialogOpen(true);
-                return newMarkers;
-            });
+        // check the click is within singapore bounds
+        if (!isWithinSingaporeBounds(position)) {
+            return;
         }
-    };
+
+        // update the state to add the new marker position
+        setMarkers((prevMarkers) => {
+            const newMarkers = [...prevMarkers, position];
+            setLastAddedMarkerIndex(newMarkers.length - 1);
+            setDialogOpen(true);
+            return newMarkers;
+        })
+
+
+    }
     async function onSubmit(values: z.infer<typeof plantTreeFormSchema>) {
 
-        if (!coordinates) {
+        if (coordinates == null) {
             console.error("Coordinates are undefined");
             return;
         }
@@ -171,20 +180,24 @@ export default function LocationAggregatorMap() {
     return (
         <>
             <div>
-                <DeckGL
+                {/* <DeckGL
                     effects={[lightingEffect]}
                     initialViewState={INITIAL_VIEW_STATE}
                     controller={true}
                     layers={layers}
                     // Disable the onClick when the view is District Urban View
-                    onClick={mapView == views[0] ? handleMapClick: null}
-                >
+                    onClick={mapView == views[0] ? handleMapClick : null}
+                > */}
+                <div className="relative h-screen">
                     <Map
                         reuseMaps
+                        initialViewState={INITIAL_VIEW_STATE}
                         mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
-                        mapStyle={mapView == views[0] ? "mapbox://styles/mapbox/light-v11": SGMapStyle as MapStyle}
+                        mapStyle={mapView == views[0] ? "mapbox://styles/mapbox/light-v11" : SGMapStyle as MapStyle}
                         interactiveLayerIds={['sg-districts-fill']}
+                        onClick={handleMapClick}
                     >
+                        <DeckGLOverlay layers={layers} />
                         <NavigationControl
                             position='bottom-left' />
                         {markers.map((marker, index) => (
@@ -291,51 +304,51 @@ export default function LocationAggregatorMap() {
                             </Marker>
                         ))}
                     </Map>
+                </div>
 
-                    <div className="absolute text-white min-h-[100px] z-2 top-5 left-10 rounded-lg p-4 text-sm bg-white">
-                        <div className="flex flex-row">
-                            <Image
-                                src="./mingcute_tree-2-fill.svg"
-                                width={27}
-                                height={27}
-                                alt="Urban Tree Inno Logo"
-                            />
-                            <h1 className="font-bold md:text-xl lg:text-2xl text-teal-500 p-3 text-wrap">Urban Tree Inno</h1>
 
-                        </div>
+                <div className="absolute text-white min-h-[100px] z-2 top-5 left-10 rounded-lg p-4 text-sm bg-white">
+                    <div className="flex flex-row">
+                        <Image
+                            src="./mingcute_tree-2-fill.svg"
+                            width={27}
+                            height={27}
+                            alt="Urban Tree Inno Logo"
+                        />
+                        <h1 className="font-bold md:text-xl lg:text-2xl text-teal-500 p-3 text-wrap">Urban Tree Inno</h1>
 
-                        <div className="flex flex-row gap-3">
-                            <Select onValueChange={handleViewChange} defaultValue={mapView}>
-                                <SelectTrigger className="w-full bg-teal-500 text-white font-semibold focus:outline-gray-500">
-                                    <SelectValue placeholder="Island Urban View" defaultValue={views[0]} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup>
-                                        {views.map((view, id) => (
-                                            <SelectItem value={view} key={id}>
-                                                {view}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
-                            <Button className='bg-teal-500'>
-                                <Link href='/compare'>Compare Simulation</Link>
-                            </Button>
-                        </div>
                     </div>
-                    {/* Only display before the user place the marker */}
-                    {
-                        markers.length <= 0 && (
-                            <div className="grid place-content-center w-full absolute top-5">
-                                <h1 className='bg-black text-white p-3 text-sm rounded-lg'>Click on the map to plant trees</h1>
-                            </div>
-                        )
-                    }
 
-                    <SideNav sendDataToParent={handleTempDataFromSideNav} heatSpotChecked={handleHeatSpotToggleFromSideNav} impactStats={impactAssessment}></SideNav>
+                    <div className="flex flex-row gap-3">
+                        <Select onValueChange={handleViewChange} defaultValue={mapView}>
+                            <SelectTrigger className="w-full bg-teal-500 text-white font-semibold focus:outline-gray-500">
+                                <SelectValue placeholder="Island Urban View" defaultValue={views[0]} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    {views.map((view, id) => (
+                                        <SelectItem value={view} key={id}>
+                                            {view}
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                        <Button className='bg-teal-500'>
+                            <Link href='/compare'>Compare Simulation</Link>
+                        </Button>
+                    </div>
+                </div>
+                {/* Only display before the user place the marker */}
+                {
+                    markers.length <= 0 && (
+                        <div className="grid place-content-center w-full absolute top-5">
+                            <h1 className='bg-black text-white p-3 text-sm rounded-lg'>Click on the map to plant trees</h1>
+                        </div>
+                    )
+                }
 
-                </DeckGL>
+                <SideNav sendDataToParent={handleTempDataFromSideNav} heatSpotChecked={handleHeatSpotToggleFromSideNav} impactStats={impactAssessment}></SideNav>
             </div>
         </>
     )
