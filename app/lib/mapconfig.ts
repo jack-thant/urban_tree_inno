@@ -45,7 +45,7 @@ export const INITIAL_VIEW_STATE: INITIAL_VIEW_STATE_FRAME = {
   latitude: sg_latitude, // Center latitude
   zoom: 11, // Initial zoom level
   minZoom: 9, // Minimum zoom level
-  maxZoom: 12, // Maximum zoom level
+  maxZoom: 15, // Maximum zoom level
   pitch: 0, // Camera pitch (tilt) in degrees
   bearing: 0, // Camera bearing (rotation) in degrees
   // maxBounds: [

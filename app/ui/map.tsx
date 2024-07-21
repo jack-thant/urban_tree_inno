@@ -44,10 +44,11 @@ import {
 } from "@/components/ui/form"
 import config from '@/lib/config';
 import SGMapStyle from '../lib/map-style';
-import type { MapLayerMouseEvent, MapStyle } from 'react-map-gl';
+import type { MapboxGeoJSONFeature, MapLayerMouseEvent, MapRef, MapStyle } from 'react-map-gl';
 import { MapboxOverlay } from '@deck.gl/mapbox';
 import { DeckProps } from '@deck.gl/core';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import bbox from '@turf/bbox';
 
 export default function LocationAggregatorMap() {
 
@@ -58,6 +59,8 @@ export default function LocationAggregatorMap() {
     const [impactAssessment, setImpactAssessment] = useState<ImpactAssessment>();
     const [coordinates, setCoordinates] = useState<[number, number]>();
     const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+
+    const mapRef = useRef<MapRef>(null);
 
     const views: Array<string> = ['Island Urban View', 'District Urban View'];
 
@@ -141,9 +144,28 @@ export default function LocationAggregatorMap() {
             setDialogOpen(true);
             return newMarkers;
         })
-
-
     }
+    const handleZoomClick = (event: MapLayerMouseEvent) => {
+
+        if (event.features && event.features.length > 0) {
+            const feature = event.features[0];
+            if (feature) {
+                // calculate the bounding box of the feature
+                const [minLng, minLat, maxLng, maxLat] = bbox(feature);
+
+                // Use the mapRef to fit the map's viewport to the bounding box of the feature
+                // Optional chaining (?.) is used to ensure that fitBounds is only called if mapRef.current is not null or undefined
+                mapRef.current?.fitBounds(
+                    [
+                        [minLng, minLat],
+                        [maxLng, maxLat]
+                    ],
+                    { padding: 80, duration: 1000 }
+                );
+            }
+        }
+    }
+
     async function onSubmit(values: z.infer<typeof plantTreeFormSchema>) {
 
         if (coordinates == null) {
@@ -195,7 +217,8 @@ export default function LocationAggregatorMap() {
                         mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
                         mapStyle={mapView == views[0] ? "mapbox://styles/mapbox/light-v11" : SGMapStyle as MapStyle}
                         interactiveLayerIds={['sg-districts-fill']}
-                        onClick={handleMapClick}
+                        ref={mapRef}
+                        onClick={mapView == views[0] ? handleMapClick : handleZoomClick}
                     >
                         <DeckGLOverlay layers={layers} />
                         <NavigationControl
@@ -353,3 +376,4 @@ export default function LocationAggregatorMap() {
         </>
     )
 }
+
