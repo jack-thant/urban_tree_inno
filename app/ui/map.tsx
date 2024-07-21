@@ -1,18 +1,16 @@
 "use client"
 
-import Map, { MapboxStyle, Marker, NavigationControl, useMap } from 'react-map-gl';
+import Map, { Marker, NavigationControl, useMap } from 'react-map-gl';
 import { DeckGL } from '@deck.gl/react';
 import "mapbox-gl/dist/mapbox-gl.css";
-import { lightingEffect, material, INITIAL_VIEW_STATE, colorRange } from "@/app/lib/mapconfig";
+import { lightingEffect, INITIAL_VIEW_STATE } from "@/app/lib/mapconfig";
 import SideNav from './sidenav';
-import { useRef, useState } from 'react';
-import { HeatmapLayer } from '@deck.gl/aggregation-layers';
+import { useState } from 'react';
 import { ImpactAssessment, InterpolatedTempRecord, MarkerPosition } from '../lib/definitions';
 import Image from 'next/image';
 import { PickingInfo } from '@deck.gl/core';
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input";
 import {
     Select,
     SelectContent,
@@ -20,7 +18,6 @@ import {
     SelectTrigger,
     SelectValue,
     SelectGroup,
-    SelectLabel
 } from "@/components/ui/select"
 import {
     Dialog,
@@ -42,11 +39,9 @@ import { plantTreeFormSchema } from '@/app/lib/validations';
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
-    FormMessage,
 } from "@/components/ui/form"
 import config from '@/lib/config';
 import SGMapStyle from '../lib/map-style';
@@ -127,10 +122,6 @@ export default function LocationAggregatorMap() {
 
         // Check if the position is valid and has exactly two elements (longitude and latitude)
         if (position && position.length === 2) {
-            // Disable the handleEvent if the coordinates exceed the specified limits
-            // if (position[0] > 103.9 && position[1] > 1.36 || position[0] < 103.6 && position[1] < 1.51) {
-            //     return;
-            // }
             if (!isWithinSingaporeBounds(position)) {
                 return;
             }
@@ -191,10 +182,8 @@ export default function LocationAggregatorMap() {
                     <Map
                         reuseMaps
                         mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
-                        // mapStyle="https://www.onemap.gov.sg/maps/json/raster/mbstyle/Night.json"
                         mapStyle={mapView == views[0] ? "mapbox://styles/mapbox/light-v11": SGMapStyle as MapStyle}
                         interactiveLayerIds={['sg-districts-fill']}
-                    // mapStyle="mapbox://styles/mapbox/dark-v11"
                     >
                         <NavigationControl
                             position='bottom-left' />
