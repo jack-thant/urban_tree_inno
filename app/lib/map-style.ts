@@ -33,10 +33,9 @@ export const highlightLayer: FillLayer = {
     id: 'sg-districts-hightlighted',
     type: 'fill',
     source: 'sg-districts',
-    'source-layer': 'original',
     paint: {
-        'fill-outline-color': '#484896',
-        'fill-color': '#6e599f',
+        'fill-outline-color': '#99f6e4',
+        'fill-color': '#14b8a6',
         'fill-opacity': 0.75
     }
 }

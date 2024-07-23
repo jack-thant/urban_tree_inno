@@ -239,7 +239,7 @@ export default function LocationAggregatorMap() {
                         onClick={mapView == views[0] ? handleMapClick : handleZoomClick}
                         onMouseMove={onDistrictHover}
                     >
-                        <Source type='vector' url='mapbox://mapbox.82pkq93d'>
+                        <Source type='geojson' data='https://raw.githubusercontent.com/jack-thant/urban_tree_inno/main/public/sgDistricts.geojson'>
                             <Layer beforeId="waterway" {...highlightLayer} filter={filter} />
                         </Source>
                         {
