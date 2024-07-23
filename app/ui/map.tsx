@@ -125,6 +125,10 @@ export default function LocationAggregatorMap() {
     }
   }, []);
 
+  const onMouseLeaveDistrict = useCallback((event: MapLayerMouseEvent) => {
+    setHoverDistrict(null);
+  }, [])
+
   const selectedDistrict = (hoverDistrict && hoverDistrict.districtName) || "";
   const filter = useMemo(
     () => ["in", "district", selectedDistrict],
@@ -264,6 +268,7 @@ export default function LocationAggregatorMap() {
             ref={mapRef}
             onClick={mapView == views[0] ? handleMapClick : handleZoomClick}
             onMouseMove={onDistrictHover}
+            onMouseLeave={onMouseLeaveDistrict}
           >
             <Source
               type="geojson"
