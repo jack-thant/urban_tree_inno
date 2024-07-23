@@ -25,8 +25,21 @@ const lineLayer: LineLayer = {
     paint: {
         'line-width': 2,
         'line-color': '#64748b'
-      }
+    }
 };
+
+// Hightlighted district polygons
+export const highlightLayer: FillLayer = {
+    id: 'sg-districts-hightlighted',
+    type: 'fill',
+    source: 'sg-districts',
+    'source-layer': 'original',
+    paint: {
+        'fill-outline-color': '#484896',
+        'fill-color': '#6e599f',
+        'fill-opacity': 0.75
+    }
+}
 
 const SGMapStyle = {
     ...MAP_STYLE,

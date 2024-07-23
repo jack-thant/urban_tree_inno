@@ -1,11 +1,11 @@
 "use client"
 
-import Map, { Marker, NavigationControl, useControl, useMap } from 'react-map-gl';
+import Map, { Layer, Marker, NavigationControl, Popup, Source, useControl, useMap } from 'react-map-gl';
 import "mapbox-gl/dist/mapbox-gl.css";
 import { lightingEffect, INITIAL_VIEW_STATE } from "@/app/lib/mapconfig";
 import SideNav from './sidenav';
-import { useRef, useState } from 'react';
-import { ImpactAssessment, InterpolatedTempRecord, MarkerPosition } from '../lib/definitions';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { HoverDistrictProps, ImpactAssessment, InterpolatedTempRecord, MarkerPosition } from '../lib/definitions';
 import Image from 'next/image';
 import { PickingInfo } from '@deck.gl/core';
 import { Button } from "@/components/ui/button"
@@ -43,12 +43,14 @@ import {
     FormLabel,
 } from "@/components/ui/form"
 import config from '@/lib/config';
-import SGMapStyle from '../lib/map-style';
-import type { MapboxGeoJSONFeature, MapLayerMouseEvent, MapRef, MapStyle } from 'react-map-gl';
+import SGMapStyle, { highlightLayer } from '../lib/map-style';
+import type { MapboxGeoJSONFeature, MapGeoJSONFeature, MapLayerMouseEvent, MapRef, MapStyle } from 'react-map-gl';
 import { MapboxOverlay } from '@deck.gl/mapbox';
 import { DeckProps } from '@deck.gl/core';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import bbox from '@turf/bbox';
+import { debounce } from 'lodash';
+import { useRouter } from 'next/router';
 
 export default function LocationAggregatorMap() {
 
@@ -59,8 +61,10 @@ export default function LocationAggregatorMap() {
     const [impactAssessment, setImpactAssessment] = useState<ImpactAssessment>();
     const [coordinates, setCoordinates] = useState<[number, number]>();
     const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+    const [hoverDistrict, setHoverDistrict] = useState<HoverDistrictProps | null>(null);
 
     const mapRef = useRef<MapRef>(null);
+    const currentDistrictRef = useRef(null);
 
     const views: Array<string> = ['Island Urban View', 'District Urban View'];
 
@@ -83,6 +87,29 @@ export default function LocationAggregatorMap() {
         overlay.setProps(props);
         return null;
     }
+
+    const debouncedSetHoverDistrict = debounce((longitude, latitude, districtName) => {
+        setHoverDistrict({ longitude, latitude, districtName });
+    }, 1000);
+
+    const onDistrictHover = useCallback((event: MapLayerMouseEvent) => {
+        const district = event.features && event.features[0];
+        if (district == null) return
+
+        const districtName = district.properties?.district;
+        // Check if the district has changed
+        if (currentDistrictRef.current != districtName) {
+            currentDistrictRef.current = districtName; // update the current state
+            debouncedSetHoverDistrict(
+                event.lngLat.lng,
+                event.lngLat.lat,
+                districtName
+            );
+        }
+    }, [debouncedSetHoverDistrict])
+
+    const selectedDistrict = (hoverDistrict && hoverDistrict.districtName) || '';
+    const filter = useMemo(() => ['in', 'district', selectedDistrict], [selectedDistrict])
 
     const minLat = 1.1890;
     const maxLat = 1.47085;
@@ -160,7 +187,7 @@ export default function LocationAggregatorMap() {
                         [minLng, minLat],
                         [maxLng, maxLat]
                     ],
-                    { padding: 80, duration: 1000 }
+                    { padding: 20, duration: 1000 }
                 );
             }
         }
@@ -202,24 +229,31 @@ export default function LocationAggregatorMap() {
     return (
         <>
             <div>
-                {/* <DeckGL
-                    effects={[lightingEffect]}
-                    initialViewState={INITIAL_VIEW_STATE}
-                    controller={true}
-                    layers={layers}
-                    // Disable the onClick when the view is District Urban View
-                    onClick={mapView == views[0] ? handleMapClick : null}
-                > */}
                 <div className="relative h-screen">
                     <Map
-                        reuseMaps
                         initialViewState={INITIAL_VIEW_STATE}
                         mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
                         mapStyle={mapView == views[0] ? "mapbox://styles/mapbox/light-v11" : SGMapStyle as MapStyle}
                         interactiveLayerIds={['sg-districts-fill']}
                         ref={mapRef}
                         onClick={mapView == views[0] ? handleMapClick : handleZoomClick}
+                        onMouseMove={onDistrictHover}
                     >
+                        <Source type='vector' url='mapbox://mapbox.82pkq93d'>
+                            <Layer beforeId="waterway" {...highlightLayer} filter={filter} />
+                        </Source>
+                        {
+                            selectedDistrict && hoverDistrict && (
+                                <Popup
+                                    longitude={hoverDistrict.longitude}
+                                    latitude={hoverDistrict.latitude}
+                                    offset={[0, -10] as [number, number]}
+                                    closeButton={false}
+                                >
+                                    {selectedDistrict}
+                                </Popup>
+                            )
+                        }
                         <DeckGLOverlay layers={layers} />
                         <NavigationControl
                             position='bottom-left' />

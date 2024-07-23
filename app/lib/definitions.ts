@@ -63,3 +63,9 @@ export interface UHIData {
     max_uhii: number;
     data: DataPoint[];
 }
+
+export interface HoverDistrictProps {
+    longitude: number;
+    latitude: number;
+    districtName: string;
+}
