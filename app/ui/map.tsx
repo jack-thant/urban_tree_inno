@@ -495,7 +495,7 @@ export default function LocationAggregatorMap() {
         {markers.length <= 0 && (
           <div className="grid place-content-center w-full absolute top-5">
             <h1 className="bg-black text-white p-3 text-sm rounded-lg">
-              Click on the map to plant trees
+              {mapView == views[0] ? "Click on the map to plant trees": "Click on the district to zoom in"}
             </h1>
           </div>
         )}
