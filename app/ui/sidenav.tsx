@@ -73,7 +73,9 @@ export default function SideNav({ sendDataToParent, heatSpotChecked, impactStats
     }
   }, [tempData, sendDataToParent])
 
-  heatSpotChecked(toggleHeatSpot)
+  useEffect(() => {
+    heatSpotChecked(toggleHeatSpot)
+  }, [toggleHeatSpot, heatSpotChecked]);
 
   return (
     <div className="flex flex-col h-screen backdrop-blur-md p-4 md:px-2 border-l-4 border-white max-w-[25rem] absolute top-0 right-0 z-10">

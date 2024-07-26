@@ -87,10 +87,9 @@ export default function LocationAggregatorMap() {
   const [hoverDistrict, setHoverDistrict] = useState<HoverDistrictProps | null>(
     null
   );
-
   const mapRef = useRef<MapRef>(null);
-
-
+  const [district, setDistrict] = useState<string>("");
+  const [zoomLevel, setZoomLevel] = useState(11);
   const views: Array<string> = ["Island Urban View", "District Urban View"];
 
   const [mapView, setMapView] = useState<string>(views[0]);
@@ -127,7 +126,7 @@ export default function LocationAggregatorMap() {
 
   const onMouseLeaveDistrict = useCallback((event: MapLayerMouseEvent) => {
     setHoverDistrict(null);
-  }, [])
+  }, []);
 
   const selectedDistrict = (hoverDistrict && hoverDistrict.districtName) || "";
   const filter = useMemo(
@@ -205,9 +204,10 @@ export default function LocationAggregatorMap() {
     if (event.features && event.features.length > 0) {
       const feature = event.features[0];
       if (feature) {
+        const districtName = feature.properties?.district;
+        setDistrict(districtName);
         // calculate the bounding box of the feature
         const [minLng, minLat, maxLng, maxLat] = bbox(feature);
-
         // Use the mapRef to fit the map's viewport to the bounding box of the feature
         // Optional chaining (?.) is used to ensure that fitBounds is only called if mapRef.current is not null or undefined
         mapRef.current?.fitBounds(
@@ -220,6 +220,38 @@ export default function LocationAggregatorMap() {
       }
     }
   };
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map) {
+      // Function to call when the move ends
+      const handleMoveEnd = () => {
+        const currentZoom = map.getZoom();
+        setZoomLevel(currentZoom);
+      };
+      map.on("moveend", handleMoveEnd);
+
+      // Clean up the event listener on component unmount or effect cleanup
+      return () => {
+        map.off("moveend", handleMoveEnd);
+      };
+    }
+  });
+
+  const handleZoomToInitialViewState = () => {
+    if (mapRef.current && INITIAL_VIEW_STATE) {
+      mapRef.current.flyTo({
+        center: [
+          INITIAL_VIEW_STATE.longitude,
+          INITIAL_VIEW_STATE.latitude
+        ],
+        zoom: 11,
+        bearing: INITIAL_VIEW_STATE.bearing,
+        pitch: INITIAL_VIEW_STATE.pitch,
+        duration: 1000
+      })
+    }
+  }
 
   async function onSubmit(values: z.infer<typeof plantTreeFormSchema>) {
     if (coordinates == null) {
@@ -494,17 +526,28 @@ export default function LocationAggregatorMap() {
         {/* Only display before the user place the marker */}
         {markers.length <= 0 && (
           <div className="grid place-content-center w-full absolute top-5">
-            <h1 className="bg-black text-white p-3 text-sm rounded-lg">
-              {mapView == views[0] ? "Click on the map to plant trees": "Click on the district to zoom in"}
-            </h1>
+            {mapView == views[0] && (
+              <h1 className="bg-black text-white p-3 text-sm rounded-lg">
+                Click on the map to plant trees
+              </h1>
+            )}
+            {mapView == views[1] && zoomLevel <= 11 && (
+              <h1 className="bg-black text-white p-3 text-sm rounded-lg">
+                Click on the district to zoom
+              </h1>
+            )}
+            {mapView == views[1] && zoomLevel > 11 && (
+              <Button className="px-10" onClick={handleZoomToInitialViewState}>Exit District Level</Button>
+            )}
           </div>
         )}
-
-        <SideNav
-          sendDataToParent={handleTempDataFromSideNav}
-          heatSpotChecked={handleHeatSpotToggleFromSideNav}
-          impactStats={impactAssessment}
-        ></SideNav>
+        {(mapView == views[0] || (mapView === views[1] && zoomLevel > 11)) && (
+          <SideNav
+            sendDataToParent={handleTempDataFromSideNav}
+            heatSpotChecked={handleHeatSpotToggleFromSideNav}
+            impactStats={impactAssessment}
+          ></SideNav>
+        )}
       </div>
     </>
   );
