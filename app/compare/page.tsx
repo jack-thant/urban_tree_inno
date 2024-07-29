@@ -36,7 +36,7 @@ const fetchIslandData = async () => {
         uhiData = uhiCache.value;
     } else {
         uhiData = await getUHIIslandData();
-        setCachedData(uhiCacheKey, { key: 'uhiData', value: uhiData });
+        // setCachedData(uhiCacheKey, { key: 'uhiData', value: uhiData });
     }
 
     return { treeData, uhiData };
@@ -67,7 +67,7 @@ const fetchDistrictData = async (district: string) => {
         uhiData = uhiCache.value;
     } else {
         uhiData = await getUHIDistrictData(district);
-        setCachedData(uhiCacheKey, { key: 'uhiData', value: uhiData });
+        // setCachedData(uhiCacheKey, { key: 'uhiData', value: uhiData });
     }
 
     return { treeData, uhiData };
@@ -97,7 +97,7 @@ const ComparePage = async ({searchParams}: {
 
     return (
         <Suspense fallback={<Loading />}>
-            <CompareMapView treeData={treeData} uhiData={uhiData} />
+            <CompareMapView treeData={treeData} uhiData={uhiData} districtCoordinates={ searchParams.feature } />
         </Suspense>
     );
 }

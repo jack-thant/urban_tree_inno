@@ -68,8 +68,6 @@ import { MapboxOverlay } from "@deck.gl/mapbox";
 import { DeckProps } from "@deck.gl/core";
 import "mapbox-gl/dist/mapbox-gl.css";
 import bbox from "@turf/bbox";
-import { debounce } from "lodash";
-import { useRouter } from "next/router";
 
 export default function LocationAggregatorMap() {
   const [tempDataFromSideNav, setTempDataFromSideNav] = useState<
