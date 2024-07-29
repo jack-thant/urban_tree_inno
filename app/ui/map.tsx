@@ -93,6 +93,7 @@ export default function LocationAggregatorMap() {
   const views: Array<string> = ["Island Urban View", "District Urban View"];
 
   const [mapView, setMapView] = useState<string>(views[0]);
+  const [districtCoordinates, setDistrictCoordinates] = useState<number[]>();
 
   const handleViewChange = (view: string) => {
     setMapView(view);
@@ -206,8 +207,11 @@ export default function LocationAggregatorMap() {
       if (feature) {
         const districtName = feature.properties?.district;
         setDistrict(districtName);
+        
         // calculate the bounding box of the feature
         const [minLng, minLat, maxLng, maxLat] = bbox(feature);
+
+        setDistrictCoordinates([minLng, minLat, maxLng, maxLat]);
         // Use the mapRef to fit the map's viewport to the bounding box of the feature
         // Optional chaining (?.) is used to ensure that fitBounds is only called if mapRef.current is not null or undefined
         mapRef.current?.fitBounds(
@@ -241,17 +245,14 @@ export default function LocationAggregatorMap() {
   const handleZoomToInitialViewState = () => {
     if (mapRef.current && INITIAL_VIEW_STATE) {
       mapRef.current.flyTo({
-        center: [
-          INITIAL_VIEW_STATE.longitude,
-          INITIAL_VIEW_STATE.latitude
-        ],
+        center: [INITIAL_VIEW_STATE.longitude, INITIAL_VIEW_STATE.latitude],
         zoom: 11,
         bearing: INITIAL_VIEW_STATE.bearing,
         pitch: INITIAL_VIEW_STATE.pitch,
-        duration: 1000
-      })
+        duration: 1000,
+      });
     }
-  }
+  };
 
   async function onSubmit(values: z.infer<typeof plantTreeFormSchema>) {
     if (coordinates == null) {
@@ -519,7 +520,14 @@ export default function LocationAggregatorMap() {
               </SelectContent>
             </Select>
             <Button className="bg-teal-500">
-              <Link href="/compare">Compare Simulation</Link>
+              <Link href={{
+                pathname: '/compare',
+                query: {
+                  mapView: mapView,
+                  districtName: district,
+                  feature: districtCoordinates ? JSON.stringify(districtCoordinates) : ''
+                }
+              }}>Compare Simulation</Link>
             </Button>
           </div>
         </div>
@@ -537,7 +545,9 @@ export default function LocationAggregatorMap() {
               </h1>
             )}
             {mapView == views[1] && zoomLevel > 11 && (
-              <Button className="px-10" onClick={handleZoomToInitialViewState}>Exit District Level</Button>
+              <Button className="px-10" onClick={handleZoomToInitialViewState}>
+                Exit District Level
+              </Button>
             )}
           </div>
         )}
@@ -546,6 +556,8 @@ export default function LocationAggregatorMap() {
             sendDataToParent={handleTempDataFromSideNav}
             heatSpotChecked={handleHeatSpotToggleFromSideNav}
             impactStats={impactAssessment}
+            view={mapView}
+            district={district}
           ></SideNav>
         )}
       </div>
