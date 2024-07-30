@@ -7,20 +7,17 @@ import Map, {
   Popup,
   Source,
   useControl,
-  useMap,
 } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { lightingEffect, INITIAL_VIEW_STATE } from "@/app/lib/mapconfig";
+import { INITIAL_VIEW_STATE } from "@/app/lib/mapconfig";
 import SideNav from "./sidenav";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   HoverDistrictProps,
   ImpactAssessment,
   InterpolatedTempRecord,
-  MarkerPosition,
 } from "../lib/definitions";
 import Image from "next/image";
-import { PickingInfo } from "@deck.gl/core";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -58,8 +55,6 @@ import {
 import config from "@/lib/config";
 import SGMapStyle, { highlightLayer } from "../lib/map-style";
 import type {
-  MapboxGeoJSONFeature,
-  MapGeoJSONFeature,
   MapLayerMouseEvent,
   MapRef,
   MapStyle,
@@ -252,6 +247,18 @@ export default function LocationAggregatorMap() {
     }
   };
 
+  const onClickHandler = (event: MapLayerMouseEvent) => {
+    if (mapView == views[0]) {
+      handleMapClick(event);
+    }
+    else if (mapView == views[1] && zoomLevel < 12) {
+      handleZoomClick(event);
+    }
+    else if (mapView == views[1] && zoomLevel >= 12) {
+      handleMapClick(event);
+    }
+  }
+
   async function onSubmit(values: z.infer<typeof plantTreeFormSchema>) {
     if (coordinates == null) {
       console.error("Coordinates are undefined");
@@ -297,7 +304,7 @@ export default function LocationAggregatorMap() {
             }
             interactiveLayerIds={["sg-districts-fill"]}
             ref={mapRef}
-            onClick={mapView == views[0] ? handleMapClick : handleZoomClick}
+            onClick={onClickHandler}
             onMouseMove={onDistrictHover}
             onMouseLeave={onMouseLeaveDistrict}
           >
