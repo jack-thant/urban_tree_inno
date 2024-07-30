@@ -54,11 +54,7 @@ import {
 } from "@/components/ui/form";
 import config from "@/lib/config";
 import SGMapStyle, { highlightLayer } from "../lib/map-style";
-import type {
-  MapLayerMouseEvent,
-  MapRef,
-  MapStyle,
-} from "react-map-gl";
+import type { MapLayerMouseEvent, MapRef, MapStyle } from "react-map-gl";
 import { MapboxOverlay } from "@deck.gl/mapbox";
 import { DeckProps } from "@deck.gl/core";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -200,7 +196,7 @@ export default function LocationAggregatorMap() {
       if (feature) {
         const districtName = feature.properties?.district;
         setDistrict(districtName);
-        
+
         // calculate the bounding box of the feature
         const [minLng, minLat, maxLng, maxLat] = bbox(feature);
 
@@ -250,14 +246,12 @@ export default function LocationAggregatorMap() {
   const onClickHandler = (event: MapLayerMouseEvent) => {
     if (mapView == views[0]) {
       handleMapClick(event);
-    }
-    else if (mapView == views[1] && zoomLevel < 12) {
+    } else if (mapView == views[1] && zoomLevel < 12) {
       handleZoomClick(event);
-    }
-    else if (mapView == views[1] && zoomLevel >= 12) {
+    } else if (mapView == views[1] && zoomLevel >= 12) {
       handleMapClick(event);
     }
-  }
+  };
 
   async function onSubmit(values: z.infer<typeof plantTreeFormSchema>) {
     if (coordinates == null) {
@@ -267,26 +261,50 @@ export default function LocationAggregatorMap() {
 
     setDialogOpen(false);
 
-    try {
-      const response = await fetch(`${config.apiUrl}/api/impact_assessment`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          lat: coordinates[1],
-          lon: coordinates[0],
-          numberOfTrees: values.numberOfTrees,
-          treeCondition: values.treeCondition,
-          treeSpecies: values.treeSpecies,
-          trunkSize: values.trunkSize,
-        }),
-      });
-      const data: ImpactAssessment = await response.json();
-      console.log("Response from the backend API: ", data);
-      setImpactAssessment(data);
-    } catch (error) {
-      console.error("There was a problem with the fetch operation:", error);
+    if (mapView == views[0]) {
+      try {
+        const response = await fetch(`${config.apiUrl}/api/impact_assessment`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            lat: coordinates[1],
+            lon: coordinates[0],
+            numberOfTrees: values.numberOfTrees,
+            treeCondition: values.treeCondition,
+            treeSpecies: values.treeSpecies,
+            trunkSize: values.trunkSize,
+          }),
+        });
+        const data: ImpactAssessment = await response.json();
+        console.log("Response from the backend API: ", data);
+        setImpactAssessment(data);
+      } catch (error) {
+        console.error("There was a problem with the fetch operation:", error);
+      }
+    } else {
+      try {
+        const response = await fetch(`${config.apiUrl}/api/impact_assessment_on_district_lvl/${district.toUpperCase()}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            lat: coordinates[1],
+            lon: coordinates[0],
+            numberOfTrees: values.numberOfTrees,
+            treeCondition: values.treeCondition,
+            treeSpecies: values.treeSpecies,
+            trunkSize: values.trunkSize,
+          }),
+        });
+        const data: ImpactAssessment = await response.json();
+        console.log("Response from the backend API: ", data);
+        setImpactAssessment(data);
+      } catch (error) {
+        console.error("There was an problem with the fetch operation:", error);
+      }
     }
   }
 
@@ -525,14 +543,20 @@ export default function LocationAggregatorMap() {
               </SelectContent>
             </Select>
             <Button className="bg-teal-500">
-              <Link href={{
-                pathname: '/compare',
-                query: {
-                  mapView: mapView,
-                  districtName: district,
-                  feature: districtCoordinates ? JSON.stringify(districtCoordinates) : ''
-                }
-              }}>Compare Simulation</Link>
+              <Link
+                href={{
+                  pathname: "/compare",
+                  query: {
+                    mapView: mapView,
+                    districtName: district,
+                    feature: districtCoordinates
+                      ? JSON.stringify(districtCoordinates)
+                      : "",
+                  },
+                }}
+              >
+                Compare Simulation
+              </Link>
             </Button>
           </div>
         </div>
