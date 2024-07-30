@@ -70,7 +70,7 @@ export default function LocationAggregatorMap() {
   const [lastAddedMarkerIndex, setLastAddedMarkerIndex] = useState<
     number | null
   >(null);
-  const [impactAssessment, setImpactAssessment] = useState<ImpactAssessment>();
+  const [impactAssessment, setImpactAssessment] = useState<ImpactAssessment | null | undefined>();
   const [coordinates, setCoordinates] = useState<[number, number]>();
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [hoverDistrict, setHoverDistrict] = useState<HoverDistrictProps | null>(
@@ -191,6 +191,7 @@ export default function LocationAggregatorMap() {
     });
   };
   const handleZoomClick = (event: MapLayerMouseEvent) => {
+    setImpactAssessment(null);
     if (event.features && event.features.length > 0) {
       const feature = event.features[0];
       if (feature) {
@@ -285,20 +286,25 @@ export default function LocationAggregatorMap() {
       }
     } else {
       try {
-        const response = await fetch(`${config.apiUrl}/api/impact_assessment_on_district_lvl/${district.toUpperCase()}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            lat: coordinates[1],
-            lon: coordinates[0],
-            numberOfTrees: values.numberOfTrees,
-            treeCondition: values.treeCondition,
-            treeSpecies: values.treeSpecies,
-            trunkSize: values.trunkSize,
-          }),
-        });
+        const response = await fetch(
+          `${
+            config.apiUrl
+          }/api/impact_assessment_on_district_lvl/${district.toUpperCase()}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              lat: coordinates[1],
+              lon: coordinates[0],
+              numberOfTrees: values.numberOfTrees,
+              treeCondition: values.treeCondition,
+              treeSpecies: values.treeSpecies,
+              trunkSize: values.trunkSize,
+            }),
+          }
+        );
         const data: ImpactAssessment = await response.json();
         console.log("Response from the backend API: ", data);
         setImpactAssessment(data);
@@ -573,11 +579,13 @@ export default function LocationAggregatorMap() {
                 Click on the district to zoom
               </h1>
             )}
-            {mapView == views[1] && zoomLevel > 11 && (
-              <Button className="px-10" onClick={handleZoomToInitialViewState}>
-                Exit District Level
-              </Button>
-            )}
+          </div>
+        )}
+        {markers.length >= 0 && mapView == views[1] && zoomLevel > 11 && (
+          <div className="grid place-content-center w-full absolute top-5">
+            <Button className="px-10" onClick={handleZoomToInitialViewState}>
+              Exit District Level
+            </Button>
           </div>
         )}
         {(mapView == views[0] || (mapView === views[1] && zoomLevel > 11)) && (

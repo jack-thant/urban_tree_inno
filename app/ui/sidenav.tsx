@@ -20,7 +20,7 @@ import config from "@/lib/config";
 interface SideNavProps {
   sendDataToParent: (tempData: InterpolatedTempRecord[]) => void;
   heatSpotChecked: (checked: boolean) => void;
-  impactStats: ImpactAssessment | undefined;
+  impactStats: ImpactAssessment | null | undefined;
   view: string;
   district: string;
 }
