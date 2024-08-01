@@ -102,7 +102,7 @@ export default function LocationAggregatorMap() {
     return null;
   }
 
-  const onDistrictHover = useCallback((event: MapLayerMouseEvent) => {
+  const onDistrictHover = (event: MapLayerMouseEvent) => {
     const district = event.features && event.features[0];
     if (district != null) {
       const districtName = district.properties?.district;
@@ -112,12 +112,12 @@ export default function LocationAggregatorMap() {
         districtName,
       });
     }
-  }, []);
+  }
 
-  const onMouseLeaveDistrict = useCallback((event: MapLayerMouseEvent) => {
+  const onMouseLeaveDistrict = (event: MapLayerMouseEvent) => {
     setHoverDistrict(null);
-  }, []);
-
+  };
+  
   const selectedDistrict = (hoverDistrict && hoverDistrict.districtName) || "";
   const filter = useMemo(
     () => ["in", "district", selectedDistrict],
