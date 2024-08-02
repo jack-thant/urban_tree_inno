@@ -103,6 +103,7 @@ export default function LocationAggregatorMap() {
   }
 
   const onDistrictHover = (event: MapLayerMouseEvent) => {
+    setHeatSpotFromSideNav(false);
     const district = event.features && event.features[0];
     if (district != null) {
       const districtName = district.properties?.district;
@@ -115,6 +116,7 @@ export default function LocationAggregatorMap() {
   }
 
   const onMouseLeaveDistrict = (event: MapLayerMouseEvent) => {
+    setHeatSpotFromSideNav(false);
     setHoverDistrict(null);
   };
   
@@ -209,7 +211,7 @@ export default function LocationAggregatorMap() {
             [minLng, minLat],
             [maxLng, maxLat],
           ],
-          { padding: 20, duration: 1000 }
+          { padding: 40, duration: 1000 }
         );
       }
     }
@@ -328,8 +330,8 @@ export default function LocationAggregatorMap() {
             }
             interactiveLayerIds={["sg-districts-fill"]}
             ref={mapRef}
-            onClick={onClickHandler}
-            onMouseMove={onDistrictHover}
+            onClick={!toggleHeatSpotFromSideNav ? onClickHandler: undefined}
+            onMouseMove={zoomLevel < 11.5 ? onDistrictHover : undefined}
             onMouseLeave={onMouseLeaveDistrict}
           >
             <Source
@@ -354,7 +356,11 @@ export default function LocationAggregatorMap() {
                 {selectedDistrict}
               </Popup>
             )}
-            <DeckGLOverlay layers={layers} />
+            {
+              toggleHeatSpotFromSideNav && (
+                <DeckGLOverlay layers={layers} />
+              )
+            }
             <NavigationControl position="bottom-left" />
             {markers.map((marker, index) => (
               <Marker
