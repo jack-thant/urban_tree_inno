@@ -39,6 +39,7 @@ const WelcomeModel = () => {
                     </DialogDescription>
                     <DialogTitle className='text-md pt-4'>Instruction</DialogTitle>
                     <DialogDescription>Start by <strong className='text-black'>clicking on the map</strong> to plant trees and see a change in the impact assessment</DialogDescription>
+                    <DialogDescription className='text-red-500 font-semibold pb-1'>{ `To ensure accurate tree planting, please switch off the "Heat Spot Data" toggle before proceeding.` } </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
                     <DialogClose asChild>
