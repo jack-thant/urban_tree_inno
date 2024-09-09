@@ -16,6 +16,7 @@ import {
   HoverDistrictProps,
   ImpactAssessment,
   InterpolatedTempRecord,
+  TreeData
 } from "../lib/definitions";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -59,6 +60,7 @@ import { MapboxOverlay } from "@deck.gl/mapbox";
 import { DeckProps } from "@deck.gl/core";
 import "mapbox-gl/dist/mapbox-gl.css";
 import bbox from "@turf/bbox";
+import { getIslandTrees } from "../lib/action";
 
 export default function LocationAggregatorMap() {
   const [tempDataFromSideNav, setTempDataFromSideNav] = useState<
@@ -83,6 +85,7 @@ export default function LocationAggregatorMap() {
 
   const [mapView, setMapView] = useState<string>(views[0]);
   const [districtCoordinates, setDistrictCoordinates] = useState<number[]>();
+  const [trees, setTrees] = useState<TreeData[]>();
 
   const handleViewChange = (view: string) => {
     setMapView(view);
@@ -234,6 +237,18 @@ export default function LocationAggregatorMap() {
     }
   });
 
+  useEffect(() => {
+    async function fetchTrees() {
+      try {
+        const data = await getIslandTrees()
+        setTrees(data)
+      } catch (err) {
+        console.error(err)
+      }
+    }
+    fetchTrees()
+  }, [])
+
   const handleZoomToInitialViewState = () => {
     if (mapRef.current && INITIAL_VIEW_STATE) {
       mapRef.current.flyTo({
@@ -362,6 +377,23 @@ export default function LocationAggregatorMap() {
               )
             }
             <NavigationControl position="bottom-left" />
+            {
+              mapView == views[0] && trees && trees.map((tree, index) => (
+                <Marker
+                  key={index}
+                  longitude={tree.lon}
+                  latitude={tree.lat}
+                  anchor="bottom"
+                >
+                  <Image
+                      src="./mingcute_tree-2-fill.svg"
+                      width={40}
+                      height={40}
+                      alt="marker"
+                    />
+                </Marker>
+              ))
+            }
             {markers.map((marker, index) => (
               <Marker
                 key={index}

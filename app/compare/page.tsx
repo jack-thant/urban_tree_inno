@@ -1,9 +1,9 @@
 import React, { Suspense } from 'react'
-import { getTreeData, getUHIIslandData, getUHIDistrictData } from '../lib/action'
+import { getTreeData, getUHIIslandData, getUHIDistrictData, getIslandTrees } from '../lib/action'
 import Loading from './loading';
 import type { Metadata } from 'next'
 import CompareMapView from '@/app/ui/CompareMapView';
-import { TreePosition, UHIData } from '@/app/lib/definitions';
+import { TreeData, TreePosition, UHIData } from '@/app/lib/definitions';
 import { generateCacheKey, getCachedData, setCachedData } from '../lib/cache';
  
 export const metadata: Metadata = {
@@ -92,6 +92,7 @@ const ComparePage = async ({searchParams}: {
 }) => {
 
     let treeData: TreePosition[] = [];
+    let trees: TreeData[] = [];
     let uhiData: UHIData = {
         min_uhii: 0,
         max_uhii: 0,
@@ -101,6 +102,7 @@ const ComparePage = async ({searchParams}: {
     if (searchParams.mapView == 'Island Urban View') {
         const start = performance.now();
         ({ treeData, uhiData } = await fetchIslandData());
+        trees = await getIslandTrees();
         const end = performance.now();
         console.log(`Execution time for Island view: ${Math.round((end - start) * 0.001)} s`);
     }
@@ -113,7 +115,7 @@ const ComparePage = async ({searchParams}: {
 
     return (
         <Suspense fallback={<Loading />}>
-            <CompareMapView treeData={treeData} uhiData={uhiData} districtCoordinates={ searchParams.feature } />
+            <CompareMapView treeData={treeData} trees={trees} uhiData={uhiData} districtCoordinates={ searchParams.feature } />
         </Suspense>
     );
 }

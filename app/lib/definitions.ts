@@ -69,3 +69,12 @@ export interface HoverDistrictProps {
     latitude: number;
     districtName: string;
 }
+
+export interface TreeData {
+    lat: number,
+    lon: number,
+    numberOfTrees: number,
+    treeCondition: string,
+    treeSpecies: string,
+    trunkSize: number
+}

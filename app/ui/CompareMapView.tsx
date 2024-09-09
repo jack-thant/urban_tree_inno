@@ -1,6 +1,6 @@
 "use client";
 
-import Map from "react-map-gl";
+import Map, { Marker } from "react-map-gl";
 import { DeckGL } from "@deck.gl/react";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { INITIAL_VIEW_STATE, lightingEffect } from "@/app/lib/mapconfig";
@@ -9,6 +9,7 @@ import {
   INITIAL_VIEW_STATE_FRAME,
   InterpolatedTempRecord,
   TransitionProps,
+  TreeData,
   TreePosition,
   UHIData,
 } from "../lib/definitions";
@@ -23,12 +24,14 @@ import { heatMapColorRange } from "@/constants/config";
 
 interface CompareMapViewProps {
   treeData: Array<TreePosition>;
+  trees?: Array<TreeData>;
   uhiData: UHIData;
   districtCoordinates?: string;
 }
 
 const CompareMapView = ({
   treeData,
+  trees,
   uhiData,
   districtCoordinates,
 }: CompareMapViewProps) => {
@@ -60,27 +63,27 @@ const CompareMapView = ({
   const centerLat = (districtCoord[1] + districtCoord[3]) / 2;
 
   // Zoom to district if districtCoord is available
-    // Zoom to district if districtCoord is available
-    useEffect(() => {
-        if (districtCoord) {
-          setViewState((prevState) => {
-            // Only update if necessary
-            if (
-              prevState.longitude !== centerLng ||
-              prevState.latitude !== centerLat ||
-              prevState.zoom !== 13
-            ) {
-              return {
-                ...prevState,
-                longitude: centerLng,
-                latitude: centerLat,
-                zoom: 13, // Adjust zoom level as needed
-              };
-            }
-            return prevState;
-          });
+  // Zoom to district if districtCoord is available
+  useEffect(() => {
+    if (districtCoord) {
+      setViewState((prevState) => {
+        // Only update if necessary
+        if (
+          prevState.longitude !== centerLng ||
+          prevState.latitude !== centerLat ||
+          prevState.zoom !== 13
+        ) {
+          return {
+            ...prevState,
+            longitude: centerLng,
+            latitude: centerLat,
+            zoom: 13, // Adjust zoom level as needed
+          };
         }
-      }, [districtCoord, centerLng, centerLat]);
+        return prevState;
+      });
+    }
+  }, [districtCoord, centerLng, centerLat]);
 
   const layers = [];
   const secondMapLayers = [];
@@ -139,7 +142,7 @@ const CompareMapView = ({
               reuseMaps
               mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
               mapStyle="mapbox://styles/mapbox/light-v11"
-            />
+            ></Map>
             <div className="relative flex justify-start ml-4 py-4 h-screen">
               <div className="absolute text-white rounded-lg p-4 text-sm bg-black">
                 <div className="mx-0 bg-black">
@@ -160,7 +163,23 @@ const CompareMapView = ({
               reuseMaps
               mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
               mapStyle="mapbox://styles/mapbox/light-v11"
-            />
+            >
+              {trees && trees.map((tree, index) => (
+                <Marker
+                  key={index}
+                  longitude={tree.lon}
+                  latitude={tree.lat}
+                  anchor="bottom"
+                >
+                  <Image
+                      src="./mingcute_tree-2-fill.svg"
+                      width={40}
+                      height={40}
+                      alt="marker"
+                    />
+                </Marker>
+              ))}
+            </Map>
             {/* Card to toggle */}
             <div className="flex flex-col float-right px-3 py-4 md:px-2 max-w-[20rem]">
               <div className="bg-white min-w-[300px] rounded-lg text-blac px-6 py-4 mb-5">

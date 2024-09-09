@@ -35,3 +35,15 @@ export async function getUHIDistrictData(district: string)
     return response.json();
 }
 
+export async function getIslandTrees()
+{
+    const response = await fetch(`${config.apiUrl}/islandtrees`, {
+        cache: 'no-store'
+    });
+    if (!response.ok)
+    {
+        throw new Error('Failed to fetch Tree Data for Island view');
+    }
+    return response.json();
+}
+
