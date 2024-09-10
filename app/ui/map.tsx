@@ -60,7 +60,7 @@ import { MapboxOverlay } from "@deck.gl/mapbox";
 import { DeckProps } from "@deck.gl/core";
 import "mapbox-gl/dist/mapbox-gl.css";
 import bbox from "@turf/bbox";
-import { getIslandTrees } from "../lib/action";
+import { getDistrictTrees, getIslandTrees } from "../lib/action";
 
 export default function LocationAggregatorMap() {
   const [tempDataFromSideNav, setTempDataFromSideNav] = useState<
@@ -86,6 +86,7 @@ export default function LocationAggregatorMap() {
   const [mapView, setMapView] = useState<string>(views[0]);
   const [districtCoordinates, setDistrictCoordinates] = useState<number[]>();
   const [trees, setTrees] = useState<TreeData[]>();
+  const [districtTrees, setDistrictTrees] = useState<TreeData[]>();
 
   const handleViewChange = (view: string) => {
     setMapView(view);
@@ -247,7 +248,19 @@ export default function LocationAggregatorMap() {
       }
     }
     fetchTrees()
-  }, [])
+  }, []);
+
+  useEffect(() => {
+    async function fetchDistrictTrees() {
+      try {
+        const data = await getDistrictTrees(district)
+        setDistrictTrees(data)
+      } catch(err) {
+        console.error(err)
+      }
+    }
+    fetchDistrictTrees()
+  }, [district])
 
   const handleZoomToInitialViewState = () => {
     if (mapRef.current && INITIAL_VIEW_STATE) {
@@ -377,6 +390,7 @@ export default function LocationAggregatorMap() {
               )
             }
             <NavigationControl position="bottom-left" />
+            {/* Display the Tree markers on the map (Island view) */}
             {
               mapView == views[0] && trees && trees.map((tree, index) => (
                 <Marker
@@ -394,6 +408,25 @@ export default function LocationAggregatorMap() {
                 </Marker>
               ))
             }
+            {/* Display the Tree markers on the map (District view) */}
+            {
+              mapView == views[1] && zoomLevel > 11  && district && districtTrees && districtTrees.map((tree, index) => (
+                <Marker
+                  key={index}
+                  longitude={tree.lon}
+                  latitude={tree.lat}
+                  anchor="bottom"
+                >
+                  <Image
+                      src="./mingcute_tree-2-fill.svg"
+                      width={40}
+                      height={40}
+                      alt="marker"
+                    />
+                </Marker>
+              ))
+            }
+            {/* Show the marker when the user click on the map */}
             {markers.map((marker, index) => (
               <Marker
                 key={index}
