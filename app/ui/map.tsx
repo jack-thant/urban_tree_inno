@@ -259,7 +259,9 @@ export default function LocationAggregatorMap() {
         console.error(err)
       }
     }
-    fetchDistrictTrees()
+    if (district != "" && district) {
+      fetchDistrictTrees()
+    }
   }, [district])
 
   const handleZoomToInitialViewState = () => {

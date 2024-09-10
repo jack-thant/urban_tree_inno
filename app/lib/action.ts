@@ -39,6 +39,9 @@ export async function getUHIDistrictData(district: string) {
 export async function getIslandTrees() {
   const response = await fetch(`${config.apiUrl}/islandtrees`, {
     cache: "force-cache",
+    next: {
+      revalidate: 300,
+    },
   });
   if (!response.ok) {
     throw new Error("Failed to fetch Tree Data for Island view");
@@ -50,11 +53,14 @@ export async function getDistrictTrees(districtName: string) {
   const response = await fetch(
     `${config.apiUrl}/districttrees/${districtName}`,
     {
-      cache: "force-cache"
+      cache: "force-cache",
+      next: {
+        revalidate: 300,
+      },
     }
   );
   if (!response.ok) {
-    throw new Error(`Failed to fetch Tree data for District ${districtName}`)
+    throw new Error(`Failed to fetch Tree data for District ${districtName}`);
   }
   return response.json();
 }

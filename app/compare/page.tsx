@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react'
-import { getTreeData, getUHIIslandData, getUHIDistrictData, getIslandTrees } from '../lib/action'
+import { getTreeData, getUHIIslandData, getUHIDistrictData, getIslandTrees, getDistrictTrees } from '../lib/action'
 import Loading from './loading';
 import type { Metadata } from 'next'
 import CompareMapView from '@/app/ui/CompareMapView';
@@ -109,6 +109,7 @@ const ComparePage = async ({searchParams}: {
     else if (searchParams.mapView == 'District Urban View' && searchParams.districtName) {
         const start = performance.now();
         ({ treeData, uhiData } = await fetchDistrictData(searchParams.districtName));
+        trees = await getDistrictTrees(searchParams.districtName);
         const end = performance.now();
         console.log(`Execution time for District View: ${Math.round((end - start) * 0.001)} s`);
     }
