@@ -1,4 +1,4 @@
-# Urban Tree Inno Project (Leaf it to Us Web application)
+# Leaf it to us Application
 
 ## Prerequisites
 Before you begin, ensure you have the following installed:
